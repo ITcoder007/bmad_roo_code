@@ -8,7 +8,7 @@
 ## Documentation
 
 - 编写 .md 文档时，也要用中文
-- 正式文档写到项目的 docs/ 目录下
+- 正式文档写到项目的 docs/ 目录下，写完之后要检查一下，确保真的写入完成
 - 用于讨论和评审的计划、方案等文档，写到项目的 discuss/ 目录下
 
 ## Code Architecture
