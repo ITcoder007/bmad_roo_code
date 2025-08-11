@@ -437,8 +437,8 @@ MVP成功的定义是系统能够有效解决证书管理的核心痛点，具�
 ### Repository Structure: Monorepo
 
 采用Monorepo结构，将前端和后端代码放在同一个代码仓库中管理。这种结构便于统一版本控制、依赖管理和CI/CD流程，特别适合中小型团队开发。代码组织将遵循领域驱动设计(DDD)原则，分为以下主要目录：
-- `frontend/`: Vue.js前端应用代码
-- `backend/`: Spring Boot后端应用代码
+- `frontend/`: Vue前端应用代码
+- `backend/`: Spring Boot后端应用代码，使用Maven进行项目管理
 - `shared/`: 共享代码和工具库
 - `docs/`: 项目文档
 - `docker/`: Docker配置文件
@@ -446,17 +446,17 @@ MVP成功的定义是系统能够有效解决证书管理的核心痛点，具�
 
 ### Service Architecture
 
-采用单体应用架构，使用Spring Boot框架构建，基于领域驱动设计(DDD)模式组织代码。这种架构适合MVP阶段的快速开发和部署，同时为未来的微服务迁移预留可能性。系统将包含以下核心服务模块：
+采用单体应用架构，使用Spring Boot框架构建，基于领域驱动设计(DDD)模式组织代码。后端采用JDK 8作为开发环境，使用MyBatis Plus作为ORM框架，MySQL作为数据库。这种架构适合MVP阶段的快速开发和部署，同时为未来的微服务迁移预留可能性。系统将包含以下核心服务模块：
 - **证书管理服务**：负责证书信息的CRUD操作
 - **监控服务**：负责定期检查证书到期时间
 - **预警服务**：负责发送证书过期预警通知
 - **用户界面服务**：提供Web界面和API接口
 
-系统将采用分层架构，包括：
+系统将采用DDD分层架构，包括：
 - **表现层**：处理HTTP请求和响应
 - **应用层**：实现业务用例和协调领域对象
 - **领域层**：包含核心业务逻辑和领域模型
-- **基础设施层**：提供技术支持和外部集成
+- **基础设施层**：提供技术支持和外部集成，包括MyBatis Plus的数据访问实现
 
 ### Testing Requirements
 
@@ -471,13 +471,18 @@ MVP成功的定义是系统能够有效解决证书管理的核心痛点，具�
 - **JUnit**: Java单元测试框架
 - **Mockito**: 模拟对象框架
 - **Spring Test**: Spring Boot测试支持
+- **MyBatis Test**: MyBatis Plus测试支持
+- **Maven Surefire Plugin**: Maven测试插件
 - **Jest**: JavaScript测试框架
 - **Vue Test Utils**: Vue组件测试工具
 - **Selenium**: Web UI自动化测试
 
 ### Additional Technical Assumptions and Requests
 
-- **数据库设计**：使用MySQL作为主数据库，设计规范化的数据表结构存储证书信息和系统配置
+- **后端技术栈**：采用JDK 8作为开发环境，Spring Boot作为应用框架，MyBatis Plus作为ORM框架，遵循DDD领域驱动设计架构
+- **项目管理**：使用Maven作为项目管理和构建工具，统一管理依赖和项目生命周期
+- **数据库设计**：使用MySQL作为主数据库，MyBatis Plus作为数据访问层，设计规范化的数据表结构存储证书信息和系统配置
+- **前端技术栈**：采用Vue.js作为前端框架，使用Vue Router进行路由管理，Vuex进行状态管理
 - **缓存策略**：使用Redis作为缓存层，提高证书查询和系统性能
 - **消息队列**：使用RabbitMQ处理异步任务，如证书监控和预警通知
 - **日志管理**：采用结构化日志，使用ELK Stack(Elasticsearch, Logstash, Kibana)进行日志收集和分析
@@ -487,6 +492,7 @@ MVP成功的定义是系统能够有效解决证书管理的核心痛点，具�
 - **CI/CD流程**：使用GitLab CI/CD实现自动化构建、测试和部署
 - **开发环境**：统一使用IntelliJ IDEA作为开发IDE，遵循统一的代码规范和格式
 - **文档要求**：使用Swagger生成API文档，使用Markdown编写技术文档和用户手册
+- **代码质量**：使用SonarQube进行代码质量检查，确保代码符合企业级标准
 
 ## Epic List
 
