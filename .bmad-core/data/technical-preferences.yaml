@@ -1,0 +1,44 @@
+# ===================================================================
+#                      技术偏好预设文件
+#
+#   用于在创建产品需求文档(PRD)和架构文档时，为AI或工具提供默认值，
+#   以确保团队技术选型的一致性并提高初始化效率。
+# ===================================================================
+
+# 整体架构与项目管理
+architecture:
+  # 风格：DDD是一种设计思想，这里指单个应用内的架构。
+  # 整体服务架构上，一个Spring Boot应用通常以单体(Monolith)开始。
+  style: Monolith
+  # 设计模式：明确使用领域驱动设计作为核心设计思想。
+  designPattern: Domain-Driven Design (DDD)
+  # API风格：Spring Boot项目通常默认提供RESTful API。
+  apiStyle: REST
+
+# 项目管理与构建
+projectManagement:
+  # 后端构建工具
+  backendBuildTool: Maven
+  # 对于经典的Java后端 + Vue前端组合，多代码库(Polyrepo)是常见且直接的实践。
+  # 即后端一个Git仓库，前端一个Git仓库。
+  # repositoryStructure: Polyrepo
+
+# 后端技术栈
+backend:
+  language: Java
+  version: JDK 8
+  framework: Spring Boot
+  dataAccessLayer: MyBatis-Plus
+
+# 前端技术栈
+frontend:
+  language: JavaScript / TypeScript
+  framework: Vue.js
+  # 默认为当前主流的 Vue 3 版本
+  version: 3.x
+
+# 数据存储
+database:
+  type: MySQL
+  # 默认为当前广泛使用的 8.x 版本
+  version: 8.x
