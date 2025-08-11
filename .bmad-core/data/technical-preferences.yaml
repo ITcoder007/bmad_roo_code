@@ -22,6 +22,7 @@ projectManagement:
   # 对于经典的Java后端 + Vue前端组合，多代码库(Polyrepo)是常见且直接的实践。
   # 即后端一个Git仓库，前端一个Git仓库。
   # repositoryStructure: Polyrepo
+  repositoryStructure: Monorepo
 
 # 后端技术栈
 backend:
