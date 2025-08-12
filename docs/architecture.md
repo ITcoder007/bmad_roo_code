@@ -4258,3 +4258,117 @@ graph TB
 - **告警规则**：配置告警规则，当特定条件满足时发送告警
 - **告警渠道**：支持邮件、短信等多种告警渠道
 
+
+## 统一项目结构
+
+### 项目整体架构
+
+证书生命周期管理系统采用Monorepo（单一代码仓库）结构，将前端和后端代码统一管理，便于团队协作和版本控制。这种结构确保了前后端代码的一致性，简化了依赖管理和构建流程。
+
+### 统一目录结构
+
+```
+certificate-management-system/
+├── .github/                    # GitHub相关配置
+│   ├── workflows/              # GitHub Actions工作流
+│   │   ├── ci.yml              # 持续集成工作流
+│   │   ├── cd.yml              # 持续部署工作流
+│   │   └── code-quality.yml    # 代码质量检查工作流
+│   └── ISSUE_TEMPLATE/          # Issue模板
+│       ├── bug_report.md       # Bug报告模板
+│       ├── feature_request.md  # 功能请求模板
+│       └── task.md             # 任务模板
+├── backend/                    # Spring Boot后端应用
+│   ├── src/                    # 源代码
+│   ├── target/                 # 构建输出
+│   ├── Dockerfile             # Docker镜像配置
+│   ├── pom.xml                # Maven项目配置
+│   └── README.md              # 后端项目说明
+├── frontend/                   # Vue.js前端应用
+│   ├── dist/                  # 构建输出
+│   ├── node_modules/          # Node.js依赖
+│   ├── public/                # 静态资源
+│   ├── src/                   # 源代码
+│   ├── Dockerfile             # Docker镜像配置
+│   ├── package.json           # npm项目配置
+│   ├── vite.config.js         # Vite配置
+│   └── README.md              # 前端项目说明
+├── shared/                     # 共享代码和类型定义
+│   ├── types/                 # TypeScript类型定义
+│   │   ├── api.ts             # API接口类型定义
+│   │   ├── certificate.ts     # 证书相关类型定义
+│   │   ├── monitoring.ts      # 监控相关类型定义
+│   │   └── system.ts          # 系统相关类型定义
+│   ├── utils/                 # 共享工具函数
+│   │   ├── date.ts            # 日期处理工具
+│   │   ├── validation.ts      # 验证工具
+│   │   └── common.ts          # 通用工具
+│   └── constants/             # 共享常量
+│       ├── api.ts             # API常量
+│       ├── certificate.ts     # 证书常量
+│       └── monitoring.ts      # 监控常量
+├── docs/                       # 项目文档
+│   ├── architecture.md        # 架构文档（本文件）
+│   ├── api/                   # API文档
+│   │   ├── certificate.md     # 证书API文档
+│   │   ├── monitoring.md      # 监控API文档
+│   │   └── system.md          # 系统API文档
+│   ├── deployment/            # 部署文档
+│   │   ├── development.md    # 开发环境部署
+│   │   ├── production.md     # 生产环境部署
+│   │   └── docker.md          # Docker部署
+│   ├── development/           # 开发文档
+│   │   ├── setup.md           # 开发环境搭建
+│   │   ├── coding-standards.md # 编码规范
+│   │   └── testing.md         # 测试指南
+│   └── user/                  # 用户文档
+│       ├── getting-started.md # 快速开始
+│       ├── features.md         # 功能说明
+│       └── troubleshooting.md  # 故障排除
+├── docker/                     # Docker相关配置
+│   ├── docker-compose.yml     # Docker Compose配置
+│   ├── docker-compose.dev.yml # 开发环境Docker Compose配置
+│   ├── docker-compose.prod.yml # 生产环境Docker Compose配置
+│   └── nginx/                 # Nginx配置
+│       ├── nginx.conf         # Nginx主配置
+│       └── default.conf       # Nginx站点配置
+├── scripts/                    # 构建和部署脚本
+│   ├── build.sh               # 构建脚本
+│   ├── deploy.sh              # 部署脚本
+│   ├── setup-dev.sh           # 开发环境设置脚本
+│   ├── migrate-db.sh          # 数据库迁移脚本
+│   └── backup-db.sh           # 数据库备份脚本
+├── .env.example               # 环境变量示例
+├── .gitignore                 # Git忽略文件
+├── .markdownlint.json         # Markdown linting配置
+├── CHANGELOG.md               # 变更日志
+├── CODE_OF_CONDUCT.md         # 行为准则
+├── CONTRIBUTING.md            # 贡献指南
+├── LICENSE                    # 许可证
+├── README.md                  # 项目说明
+└── SECURITY.md                # 安全指南
+```
+
+### 前后端协同工作流程
+
+#### 1. API接口协同
+
+- **API定义优先**：后端先定义API接口规范，包括请求参数、响应格式和错误码
+- **类型共享**：前后端共享TypeScript类型定义，确保接口类型一致
+- **Mock数据**：后端提供Mock数据服务，前端可以基于Mock数据进行开发
+- **接口测试**：前后端共同进行接口测试，确保功能正确性
+
+#### 2. 开发流程协同
+
+- **分支管理**：采用Git Flow分支管理策略，确保代码质量和发布流程
+- **代码审查**：前后端代码变更需要经过交叉审查，确保整体一致性
+- **持续集成**：设置CI/CD流水线，自动化构建、测试和部署流程
+- **版本同步**：前后端版本保持同步，避免接口不兼容问题
+
+#### 3. 构建和部署协同
+
+- **统一构建**：使用统一的构建脚本，同时构建前端和后端
+- **容器化部署**：前后端分别打包为Docker镜像，通过Docker Compose协调部署
+- **环境配置**：使用环境变量管理不同环境的配置，避免硬编码
+- **数据库迁移**：使用数据库迁移工具，确保数据库结构一致性
+
