@@ -4257,3 +4257,1232 @@ graph TB
 - **自定义健康指标**：实现自定义健康指标，监控证书状态和预警发送情况
 - **告警规则**：配置告警规则，当特定条件满足时发送告警
 - **告警渠道**：支持邮件、短信等多种告警渠道
+
+## 统一项目结构
+
+定义统一的项目结构，包括前端和后端的目录组织、共享资源、构建配置等。
+
+### 项目结构设计原则
+
+- **Monorepo架构**：使用Monorepo架构管理前端和后端代码，便于统一管理和版本控制
+- **模块化组织**：按功能模块组织代码，提高代码的可维护性和可扩展性
+- **共享资源**：前端和后端共享一些资源，如类型定义、常量、工具函数等
+- **标准化构建**：使用标准化的构建流程和配置，简化开发和部署流程
+- **环境隔离**：为不同环境（开发、测试、生产）提供隔离的配置
+
+### 项目根目录结构
+
+```
+certificate-management-system/
+├── README.md                           # 项目说明文档
+├── .gitignore                         # Git忽略文件
+├── .gitattributes                     # Git属性文件
+├── LICENSE                            # 开源许可证
+├── CHANGELOG.md                       # 变更日志
+├── docs/                              # 文档目录
+│   ├── architecture.md                 # 架构文档
+│   ├── api/                           # API文档
+│   │   ├── certificate-api.md          # 证书API文档
+│   │   ├── monitoring-api.md          # 监控API文档
+│   │   └── system-api.md              # 系统API文档
+│   ├── deployment/                    # 部署文档
+│   │   ├── development.md             # 开发环境部署
+│   │   ├── testing.md                 # 测试环境部署
+│   │   └── production.md              # 生产环境部署
+│   ├── development/                   # 开发指南
+│   │   ├── setup.md                   # 开发环境设置
+│   │   ├── coding-standards.md        # 编码规范
+│   │   ├── testing-guide.md           # 测试指南
+│   │   └── contribution-guide.md      # 贡献指南
+│   └── user-guide/                    # 用户指南
+│       ├── getting-started.md         # 入门指南
+│       ├── certificate-management.md  # 证书管理指南
+│       └── monitoring-guide.md        # 监控指南
+├── scripts/                           # 脚本目录
+│   ├── build.sh                       # 构建脚本
+│   ├── deploy.sh                      # 部署脚本
+│   ├── test.sh                        # 测试脚本
+│   ├── setup-dev.sh                   # 开发环境设置脚本
+│   └── docker-compose.yml             # Docker Compose配置
+├── .env                              # 环境变量文件
+├── .env.example                      # 环境变量示例文件
+├── .npmrc                            # NPM配置文件
+├── pom.xml                           # Maven根POM文件
+├── package.json                      # NPM根包文件
+├── lerna.json                        # Lerna配置文件
+├── .eslintrc.js                      # ESLint配置文件
+├── .prettierrc.js                    # Prettier配置文件
+├── .editorconfig                     # 编辑器配置文件
+├── backend/                          # 后端目录
+│   ├── src/                          # 源代码目录
+│   ├── tests/                        # 测试目录
+│   ├── Dockerfile                     # Docker镜像文件
+│   ├── pom.xml                       # Maven POM文件
+│   ├── .env                          # 后端环境变量文件
+│   ├── .env.example                  # 后端环境变量示例文件
+│   └── README.md                     # 后端说明文档
+├── frontend/                         # 前端目录
+│   ├── src/                          # 源代码目录
+│   ├── tests/                        # 测试目录
+│   ├── Dockerfile                     # Docker镜像文件
+│   ├── package.json                  # NPM包文件
+│   ├── vite.config.js                # Vite配置文件
+│   ├── .env                          # 前端环境变量文件
+│   ├── .env.example                  # 前端环境变量示例文件
+│   └── README.md                     # 前端说明文档
+├── shared/                           # 共享资源目录
+│   ├── types/                        # 类型定义
+│   │   ├── certificate.ts            # 证书类型定义
+│   │   ├── monitoring.ts             # 监控类型定义
+│   │   ├── system.ts                 # 系统类型定义
+│   │   ├── api.ts                    # API类型定义
+│   │   └── index.ts                  # 类型导出
+│   ├── constants/                    # 常量定义
+│   │   ├── certificate.ts            # 证书常量
+│   │   ├── monitoring.ts             # 监控常量
+│   │   ├── system.ts                 # 系统常量
+│   │   ├── api.ts                    # API常量
+│   │   └── index.ts                  # 常量导出
+│   ├── utils/                        # 工具函数
+│   │   ├── date.ts                   # 日期工具
+│   │   ├── validation.ts             # 验证工具
+│   │   ├── format.ts                 # 格式化工具
+│   │   └── index.ts                  # 工具导出
+│   ├── api-specs/                    # API规范
+│   │   ├── certificate.yaml          # 证书API规范
+│   │   ├── monitoring.yaml           # 监控API规范
+│   │   ├── system.yaml               # 系统API规范
+│   │   └── index.yaml                # API规范索引
+│   └── README.md                     # 共享资源说明文档
+└── docker/                           # Docker相关文件
+    ├── nginx/                        # Nginx配置
+    │   ├── nginx.conf                 # Nginx主配置
+    │   ├── default.conf               # Nginx默认站点配置
+    │   └── ssl/                       # SSL证书目录
+    │       ├── example.com.crt        # SSL证书
+    │       └── example.com.key        # SSL密钥
+    ├── mysql/                        # MySQL配置
+    │   ├── my.cnf                     # MySQL配置文件
+    │   └── init/                      # MySQL初始化脚本
+    │       ├── 01-database.sql        # 数据库创建脚本
+    │       ├── 02-tables.sql          # 表创建脚本
+    │       └── 03-data.sql            # 初始数据脚本
+    └── redis/                        # Redis配置
+        └── redis.conf                 # Redis配置文件
+```
+
+### Monorepo管理
+
+#### 1. Lerna配置
+
+使用Lerna管理Monorepo，实现前端和后端的统一构建和发布。
+
+```json
+{
+  "name": "certificate-management-system",
+  "version": "1.0.0",
+  "description": "证书生命周期管理系统",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "scripts": {
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "clean": "lerna run clean",
+    "dev": "lerna run dev --parallel",
+    "lint": "lerna run lint",
+    "format": "lerna run format",
+    "deploy": "lerna run deploy"
+  },
+  "devDependencies": {
+    "lerna": "^6.0.0"
+  }
+}
+```
+
+#### 2. 根POM配置
+
+使用Maven管理后端依赖，同时与NPM工作空间集成。
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <groupId>com.example</groupId>
+    <artifactId>certificate-management-system</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    
+    <name>Certificate Management System</name>
+    <description>证书生命周期管理系统</description>
+    
+    <modules>
+        <module>backend</module>
+    </modules>
+    
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-boot.version>2.7.10</spring-boot.version>
+    </properties>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.10.1</version>
+                    <configuration>
+                        <source>8</source>
+                        <target>8</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
+```
+
+#### 3. 根NPM配置
+
+使用NPM管理前端依赖，同时与Maven模块集成。
+
+```json
+{
+  "name": "certificate-management-system",
+  "version": "1.0.0",
+  "description": "证书生命周期管理系统",
+  "private": true,
+  "scripts": {
+    "postinstall": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "lerna run test",
+    "clean": "lerna run clean",
+    "dev": "lerna run dev --parallel",
+    "lint": "lerna run lint",
+    "format": "lerna run format",
+    "deploy": "lerna run deploy"
+  },
+  "devDependencies": {
+    "lerna": "^6.0.0",
+    "husky": "^8.0.0",
+    "lint-staged": "^13.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{java}": [
+      "mvn spotless:apply"
+    ],
+    "*.{md,json,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
+```
+
+### 共享资源管理
+
+#### 1. 类型定义共享
+
+前端和后端共享TypeScript类型定义，确保API接口的一致性。
+
+```typescript
+// shared/types/certificate.ts
+export interface Certificate {
+  id: number;
+  name: string;
+  domain: string;
+  issuer: string;
+  issueDate: Date;
+  expiryDate: Date;
+  certificateType: string;
+  status: CertificateStatus;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export enum CertificateStatus {
+  NORMAL = 'NORMAL',
+  EXPIRING_SOON = 'EXPIRING_SOON',
+  EXPIRED = 'EXPIRED'
+}
+
+export interface CertificateCreateRequest {
+  name: string;
+  domain: string;
+  issuer: string;
+  issueDate: Date;
+  expiryDate: Date;
+  certificateType: string;
+}
+
+export interface CertificateUpdateRequest {
+  id: number;
+  name: string;
+  domain: string;
+  issuer: string;
+  issueDate: Date;
+  expiryDate: Date;
+  certificateType: string;
+}
+
+export interface CertificateResponse {
+  success: boolean;
+  message: string;
+  data: Certificate | Certificate[] | null;
+  pagination?: {
+    page: number;
+    size: number;
+    total: number;
+    totalPages: number;
+  };
+}
+```
+
+#### 2. 常量定义共享
+
+前端和后端共享常量定义，确保业务逻辑的一致性。
+
+```typescript
+// shared/constants/certificate.ts
+export const CertificateConstants = {
+  STATUS: {
+    NORMAL: 'NORMAL',
+    EXPIRING_SOON: 'EXPIRING_SOON',
+    EXPIRED: 'EXPIRED'
+  },
+  TYPE: {
+    SSL_TLS: 'SSL/TLS',
+    CODE_SIGNING: 'Code Signing',
+    EMAIL: 'Email',
+    CLIENT: 'Client'
+  },
+  VALIDATION: {
+    NAME_MAX_LENGTH: 100,
+    DOMAIN_MAX_LENGTH: 255,
+    ISSUER_MAX_LENGTH: 100,
+    TYPE_MAX_LENGTH: 50
+  },
+  MONITORING: {
+    EXPIRING_SOON_THRESHOLD: 30, // 天数
+    EXPIRED_THRESHOLD: 0 // 天数
+  }
+};
+```
+
+#### 3. 工具函数共享
+
+前端和后端共享工具函数，减少重复代码。
+
+```typescript
+// shared/utils/date.ts
+export const DateUtils = {
+  /**
+   * 格式化日期为YYYY-MM-DD格式
+   * @param date 日期对象
+   * @returns 格式化后的日期字符串
+   */
+  formatDate(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+  
+  /**
+   * 计算两个日期之间的天数差
+   * @param startDate 开始日期
+   * @param endDate 结束日期
+   * @returns 天数差
+   */
+  getDaysBetween(startDate: Date, endDate: Date): number {
+    const oneDay = 24 * 60 * 60 * 1000; // 一天的毫秒数
+    const diffDays = Math.round(Math.abs((startDate.getTime() - endDate.getTime()) / oneDay));
+    return diffDays;
+  },
+  
+  /**
+   * 计算距离到期的天数
+   * @param expiryDate 到期日期
+   * @returns 距离到期的天数
+   */
+  getDaysUntilExpiry(expiryDate: Date): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // 设置为当天的开始
+    expiryDate.setHours(0, 0, 0, 0); // 设置为到期日的开始
+    
+    return this.getDaysBetween(today, expiryDate);
+  }
+};
+```
+
+#### 4. API规范共享
+
+前端和后端共享API规范，确保接口的一致性。
+
+```yaml
+# shared/api-specs/certificate.yaml
+openapi: 3.0.0
+info:
+  title: Certificate Management API
+  description: 证书管理系统的API规范
+  version: 1.0.0
+
+paths:
+  /api/v1/certificates:
+    get:
+      summary: 获取证书列表
+      description: 获取所有证书的列表，支持分页、筛选和排序
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          schema:
+            type: integer
+            default: 1
+        - name: size
+          in: query
+          description: 每页大小
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          description: 证书状态筛选
+          schema:
+            type: string
+            enum: [NORMAL, EXPIRING_SOON, EXPIRED]
+        - name: sort
+          in: query
+          description: 排序字段
+          schema:
+            type: string
+            default: createdAt,desc
+      responses:
+        '200':
+          description: 成功获取证书列表
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePageResponse'
+        '401':
+          description: 未授权
+        '500':
+          description: 服务器错误
+    
+    post:
+      summary: 创建证书
+      description: 创建一个新的证书
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateCreateRequest'
+      responses:
+        '201':
+          description: 成功创建证书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '400':
+          description: 请求参数错误
+        '401':
+          description: 未授权
+        '500':
+          description: 服务器错误
+
+  /api/v1/certificates/{id}:
+    get:
+      summary: 获取证书详情
+      description: 根据ID获取证书的详细信息
+      parameters:
+        - name: id
+          in: path
+          description: 证书ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 成功获取证书详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '404':
+          description: 证书不存在
+        '401':
+          description: 未授权
+        '500':
+          description: 服务器错误
+    
+    put:
+      summary: 更新证书
+      description: 根据ID更新证书信息
+      parameters:
+        - name: id
+          in: path
+          description: 证书ID
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CertificateUpdateRequest'
+      responses:
+        '200':
+          description: 成功更新证书
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificateResponse'
+        '400':
+          description: 请求参数错误
+        '404':
+          description: 证书不存在
+        '401':
+          description: 未授权
+        '500':
+          description: 服务器错误
+    
+    delete:
+      summary: 删除证书
+      description: 根据ID删除证书
+      parameters:
+        - name: id
+          in: path
+          description: 证书ID
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: 成功删除证书
+        '404':
+          description: 证书不存在
+        '401':
+          description: 未授权
+        '500':
+          description: 服务器错误
+
+components:
+  schemas:
+    Certificate:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 证书ID
+        name:
+          type: string
+          description: 证书名称
+        domain:
+          type: string
+          description: 证书关联的域名
+        issuer:
+          type: string
+          description: 证书颁发机构
+        issueDate:
+          type: string
+          format: date-time
+          description: 证书颁发日期
+        expiryDate:
+          type: string
+          format: date-time
+          description: 证书到期日期
+        certificateType:
+          type: string
+          description: 证书类型
+        status:
+          type: string
+          enum: [NORMAL, EXPIRING_SOON, EXPIRED]
+          description: 证书状态
+        createdAt:
+          type: string
+          format: date-time
+          description: 记录创建时间
+        updatedAt:
+          type: string
+          format: date-time
+          description: 记录更新时间
+    
+    CertificateCreateRequest:
+      type: object
+      required:
+        - name
+        - domain
+        - issuer
+        - issueDate
+        - expiryDate
+        - certificateType
+      properties:
+        name:
+          type: string
+          description: 证书名称
+        domain:
+          type: string
+          description: 证书关联的域名
+        issuer:
+          type: string
+          description: 证书颁发机构
+        issueDate:
+          type: string
+          format: date-time
+          description: 证书颁发日期
+        expiryDate:
+          type: string
+          format: date-time
+          description: 证书到期日期
+        certificateType:
+          type: string
+          description: 证书类型
+    
+    CertificateUpdateRequest:
+      type: object
+      required:
+        - id
+        - name
+        - domain
+        - issuer
+        - issueDate
+        - expiryDate
+        - certificateType
+      properties:
+        id:
+          type: integer
+          description: 证书ID
+        name:
+          type: string
+          description: 证书名称
+        domain:
+          type: string
+          description: 证书关联的域名
+        issuer:
+          type: string
+          description: 证书颁发机构
+        issueDate:
+          type: string
+          format: date-time
+          description: 证书颁发日期
+        expiryDate:
+          type: string
+          format: date-time
+          description: 证书到期日期
+        certificateType:
+          type: string
+          description: 证书类型
+    
+    CertificateResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 请求是否成功
+        message:
+          type: string
+          description: 响应消息
+        data:
+          $ref: '#/components/schemas/Certificate'
+    
+    CertificatePageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 请求是否成功
+        message:
+          type: string
+          description: 响应消息
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Certificate'
+        pagination:
+          type: object
+          properties:
+            page:
+              type: integer
+              description: 当前页码
+            size:
+              type: integer
+              description: 每页大小
+            total:
+              type: integer
+              description: 总记录数
+            totalPages:
+              type: integer
+              description: 总页数
+```
+
+### 构建和部署配置
+
+#### 1. Docker Compose配置
+
+使用Docker Compose编排前端、后端、数据库和缓存服务。
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # 前端服务
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: certificate-management-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - certificate-management-network
+    environment:
+      - VITE_API_BASE_URL=http://backend:8080/api
+    restart: unless-stopped
+
+  # 后端服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: certificate-management-backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+      - redis
+    networks:
+      - certificate-management-network
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/certificate_management?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_REDIS_HOST=redis
+      - SPRING_REDIS_PORT=6379
+    restart: unless-stopped
+
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: certificate-management-mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - certificate-management-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=certificate_management
+      - MYSQL_USER=appuser
+      - MYSQL_PASSWORD=apppassword
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: certificate-management-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - certificate-management-network
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # Nginx反向代理
+  nginx:
+    image: nginx:alpine
+    container_name: certificate-management-nginx
+    ports:
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - certificate-management-network
+    volumes:
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    restart: unless-stopped
+
+# 网络配置
+networks:
+  certificate-management-network:
+    driver: bridge
+
+# 数据卷配置
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+```
+
+#### 2. 构建脚本
+
+提供统一的构建脚本，简化构建流程。
+
+```bash
+#!/bin/bash
+# scripts/build.sh
+
+set -e
+
+echo "开始构建证书生命周期管理系统..."
+
+# 检查依赖
+echo "检查构建依赖..."
+if ! command -v mvn &> /dev/null; then
+    echo "错误: Maven 未安装"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo "错误: NPM 未安装"
+    exit 1
+fi
+
+if ! command -v docker &> /dev/null; then
+    echo "错误: Docker 未安装"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    echo "错误: Docker Compose 未安装"
+    exit 1
+fi
+
+# 构建后端
+echo "构建后端..."
+cd backend
+mvn clean package -DskipTests
+cd ..
+
+# 构建前端
+echo "构建前端..."
+cd frontend
+npm install
+npm run build
+cd ..
+
+# 构建Docker镜像
+echo "构建Docker镜像..."
+docker-compose build
+
+echo "构建完成！"
+```
+
+#### 3. 部署脚本
+
+提供统一的部署脚本，简化部署流程。
+
+```bash
+#!/bin/bash
+# scripts/deploy.sh
+
+set -e
+
+# 环境参数
+ENV=${1:-dev}
+PROJECT_NAME="certificate-management-system"
+
+echo "开始部署证书生命周期管理系统到 ${ENV} 环境..."
+
+# 检查依赖
+echo "检查部署依赖..."
+if ! command -v docker &> /dev/null; then
+    echo "错误: Docker 未安装"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    echo "错误: Docker Compose 未安装"
+    exit 1
+fi
+
+# 停止现有服务
+echo "停止现有服务..."
+docker-compose down
+
+# 备份数据库
+echo "备份数据库..."
+docker-compose exec mysql sh -c 'exec mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > backup-$(date +%Y%m%d%H%M%S).sql
+
+# 拉取最新镜像
+echo "拉取最新镜像..."
+docker-compose pull
+
+# 启动服务
+echo "启动服务..."
+docker-compose up -d
+
+# 等待服务启动
+echo "等待服务启动..."
+sleep 30
+
+# 检查服务状态
+echo "检查服务状态..."
+docker-compose ps
+
+# 运行数据库迁移
+echo "运行数据库迁移..."
+docker-compose exec backend java -jar app.jar --spring.profiles.active=${ENV} --spring.datasource.url=jdbc:mysql://mysql:3306/certificate_management?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true --spring.datasource.username=root --spring.datasource.password=password --spring.liquibase.enabled=true --spring.liquibase.drop-first=false
+
+echo "部署完成！"
+```
+
+### 开发环境配置
+
+#### 1. 开发环境设置脚本
+
+提供开发环境设置脚本，简化开发环境配置。
+
+```bash
+#!/bin/bash
+# scripts/setup-dev.sh
+
+set -e
+
+echo "开始设置证书生命周期管理系统开发环境..."
+
+# 检查依赖
+echo "检查开发环境依赖..."
+if ! command -v mvn &> /dev/null; then
+    echo "错误: Maven 未安装"
+    exit 1
+fi
+
+if ! command -v npm &> /dev/null; then
+    echo "错误: NPM 未安装"
+    exit 1
+fi
+
+if ! command -v docker &> /dev/null; then
+    echo "错误: Docker 未安装"
+    exit 1
+fi
+
+if ! command -v docker-compose &> /dev/null; then
+    echo "错误: Docker Compose 未安装"
+    exit 1
+fi
+
+# 安装根依赖
+echo "安装根依赖..."
+npm install
+
+# 安装Lerna
+echo "安装Lerna..."
+npm install -g lerna
+
+# 初始化工作空间
+echo "初始化工作空间..."
+lerna bootstrap
+
+# 启动开发环境服务
+echo "启动开发环境服务..."
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d mysql redis
+
+# 等待数据库服务启动
+echo "等待数据库服务启动..."
+sleep 20
+
+# 初始化数据库
+echo "初始化数据库..."
+docker-compose exec mysql mysql -uroot -ppassword -e "CREATE DATABASE IF NOT EXISTS certificate_management;"
+
+# 导入初始数据
+echo "导入初始数据..."
+docker-compose exec mysql mysql -uroot -ppassword certificate_management < docker/mysql/init/03-data.sql
+
+echo "开发环境设置完成！"
+echo "前端服务: npm run dev"
+echo "后端服务: mvn spring-boot:run"
+echo "数据库: localhost:3306"
+echo "Redis: localhost:6379"
+```
+
+#### 2. 开发环境Docker Compose配置
+
+提供开发环境专用的Docker Compose配置。
+
+```yaml
+# docker-compose.dev.yml
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: certificate-management-mysql-dev
+    ports:
+      - "3306:3306"
+    networks:
+      - certificate-management-network
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=certificate_management
+      - MYSQL_USER=appuser
+      - MYSQL_PASSWORD=apppassword
+    volumes:
+      - mysql-dev-data:/var/lib/mysql
+      - ./docker/mysql/init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+
+  # Redis缓存
+  redis:
+    image: redis:7-alpine
+    container_name: certificate-management-redis-dev
+    ports:
+      - "6379:6379"
+    networks:
+      - certificate-management-network
+    volumes:
+      - redis-dev-data:/data
+    restart: unless-stopped
+
+# 网络配置
+networks:
+  certificate-management-network:
+    driver: bridge
+
+# 数据卷配置
+volumes:
+  mysql-dev-data:
+    driver: local
+  redis-dev-data:
+    driver: local
+```
+
+### 代码质量工具
+
+#### 1. ESLint配置
+
+统一的ESLint配置，确保前端代码质量。
+
+```javascript
+// .eslintrc.js
+module.exports = {
+  root: true,
+  env: {
+    browser: true,
+    node: true,
+    es2021: true,
+  },
+  extends: [
+    'eslint:recommended',
+    'plugin:vue/vue3-recommended',
+    'plugin:@typescript-eslint/recommended',
+    'prettier'
+  ],
+  parser: 'vue-eslint-parser',
+  parserOptions: {
+    ecmaVersion: 2021,
+    parser: '@typescript-eslint/parser',
+    sourceType: 'module',
+  },
+  plugins: ['vue', '@typescript-eslint'],
+  rules: {
+    'vue/multi-word-component-names': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
+  },
+  overrides: [
+    {
+      files: ['*.vue'],
+      rules: {
+        'no-undef': 'off'
+      }
+    }
+  ]
+};
+```
+
+#### 2. Prettier配置
+
+统一的Prettier配置，确保代码格式一致。
+
+```javascript
+// .prettierrc.js
+module.exports = {
+  semi: true,
+  trailingComma: 'es5',
+  singleQuote: true,
+  printWidth: 100,
+  tabWidth: 2,
+  useTabs: false,
+  bracketSpacing: true,
+  arrowParens: 'avoid',
+  endOfLine: 'lf',
+  vueIndentScriptAndStyle: true,
+};
+```
+
+#### 3. EditorConfig配置
+
+统一的EditorConfig配置，确保不同编辑器的代码风格一致。
+
+```ini
+# .editorconfig
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml}]
+indent_size = 2
+
+[*.{js,jsx,ts,tsx,vue}]
+indent_size = 2
+
+[*.{java}]
+indent_size = 4
+indent_style = tab
+```
+
+#### 4. Git钩子配置
+
+使用Husky和lint-staged配置Git钩子，确保提交的代码质量。
+
+```json
+// package.json
+{
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{java}": [
+      "mvn spotless:apply"
+    ],
+    "*.{md,json,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}
+```
+
+### 版本控制和发布策略
+
+#### 1. Git工作流
+
+使用Git Flow工作流管理代码版本。
+
+```bash
+# 创建功能分支
+git checkout -b feature/certificate-management develop
+
+# 开发完成后合并到develop分支
+git checkout develop
+git merge --no-ff feature/certificate-management
+
+# 创建发布分支
+git checkout -b release/v1.0.0 develop
+
+# 测试完成后合并到master和develop分支
+git checkout master
+git merge --no-ff release/v1.0.0
+git tag -a v1.0.0 -m "Version 1.0.0"
+
+git checkout develop
+git merge --no-ff release/v1.0.0
+```
+
+#### 2. 语义化版本控制
+
+使用语义化版本控制规范管理版本号。
+
+- 主版本号：当有不兼容的API修改时
+- 次版本号：当有向下兼容的功能性新增时
+- 修订号：当有向下兼容的问题修正时
+
+#### 3. 发布流程
+
+1. 从develop分支创建release分支
+2. 在release分支上进行测试和修复
+3. 测试完成后，将release分支合并到master和develop分支
+4. 在master分支上创建版本标签
+5. 构建和发布新版本
+
+#### 4. 变更日志
+
+使用标准化的变更日志格式记录版本变更。
+
+```markdown
+## [1.0.0] - 2023-06-15
+
+### Added
+- 证书管理功能
+- 证书监控功能
+- 证书预警功能
+- 系统状态查询功能
+- 监控日志查询功能
+
+### Changed
+- 初始版本发布
+
+### Fixed
+- 修复证书状态计算问题
+- 修复监控日志记录问题
+```
