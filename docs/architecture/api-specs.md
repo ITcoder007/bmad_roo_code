@@ -1,0 +1,372 @@
+## API 规范
+
+定义系统的 REST API 接口，包括证书管理、监控和预警等功能。
+
+### API 设计原则
+
+- **RESTful 设计**：遵循 REST 架构风格，使用标准 HTTP 方法
+- **统一响应格式**：所有 API 响应使用统一的 JSON 格式
+- **状态码使用**：正确使用 HTTP 状态码表示请求结果
+- **版本控制**：API 路径包含版本号（/api/v1/）
+- **错误处理**：统一的错误响应格式，包含错误代码和消息
+- **认证授权**：使用 JWT 进行 API 认证
+
+### 统一响应格式
+
+所有 API 响应使用以下统一格式：
+
+```typescript
+interface ApiResponse<T> {
+  success: boolean;      // 请求是否成功
+  code: number;          // 响应代码
+  message: string;       // 响应消息
+  data?: T;             // 响应数据（可选）
+  timestamp: string;    // 响应时间戳
+}
+```
+
+### 统一错误响应格式
+
+```typescript
+interface ApiError {
+  success: boolean;      // 固定为 false
+  code: number;          // 错误代码
+  message: string;       // 错误消息
+  error?: string;       // 详细错误信息（可选）
+  timestamp: string;    // 响应时间戳
+}
+```
+
+### 证书管理 API
+
+#### 1. 获取证书列表
+
+**端点：** `GET /api/v1/certificates`
+
+**描述：** 获取证书列表，支持分页、排序和筛选
+
+**请求参数：**
+- `page` (number, 可选): 页码，默认为 1
+- `size` (number, 可选): 每页大小，默认为 20
+- `sort` (string, 可选): 排序字段，如 "expiryDate,desc"
+- `status` (string, 可选): 筛选状态，如 "NORMAL"、"EXPIRING_SOON"、"EXPIRED"
+- `search` (string, 可选): 搜索关键词，搜索证书名称和域名
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "获取证书列表成功",
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "name": "网站SSL证书",
+        "domain": "example.com",
+        "issuer": "Let's Encrypt",
+        "issueDate": "2023-01-15T00:00:00Z",
+        "expiryDate": "2024-01-15T00:00:00Z",
+        "certificateType": "SSL/TLS",
+        "status": "NORMAL",
+        "createdAt": "2023-01-20T08:30:00Z",
+        "updatedAt": "2023-01-20T08:30:00Z"
+      }
+    ],
+    "pageable": {
+      "sort": {
+        "empty": false,
+        "sorted": true,
+        "unsorted": false
+      },
+      "offset": 0,
+      "pageNumber": 0,
+      "pageSize": 20,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "totalPages": 1,
+    "totalElements": 1,
+    "size": 20,
+    "number": 0,
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "first": true,
+    "numberOfElements": 1,
+    "empty": false
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+#### 2. 获取证书详情
+
+**端点：** `GET /api/v1/certificates/{id}`
+
+**描述：** 根据证书ID获取证书详情
+
+**路径参数：**
+- `id` (number): 证书ID
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "获取证书详情成功",
+  "data": {
+    "id": 1,
+    "name": "网站SSL证书",
+    "domain": "example.com",
+    "issuer": "Let's Encrypt",
+    "issueDate": "2023-01-15T00:00:00Z",
+    "expiryDate": "2024-01-15T00:00:00Z",
+    "certificateType": "SSL/TLS",
+    "status": "NORMAL",
+    "createdAt": "2023-01-20T08:30:00Z",
+    "updatedAt": "2023-01-20T08:30:00Z"
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+#### 3. 创建证书
+
+**端点：** `POST /api/v1/certificates`
+
+**描述：** 创建新证书
+
+**请求体：**
+```json
+{
+  "name": "网站SSL证书",
+  "domain": "example.com",
+  "issuer": "Let's Encrypt",
+  "issueDate": "2023-01-15T00:00:00Z",
+  "expiryDate": "2024-01-15T00:00:00Z",
+  "certificateType": "SSL/TLS"
+}
+```
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 201,
+  "message": "创建证书成功",
+  "data": {
+    "id": 1,
+    "name": "网站SSL证书",
+    "domain": "example.com",
+    "issuer": "Let's Encrypt",
+    "issueDate": "2023-01-15T00:00:00Z",
+    "expiryDate": "2024-01-15T00:00:00Z",
+    "certificateType": "SSL/TLS",
+    "status": "NORMAL",
+    "createdAt": "2023-06-15T10:30:00Z",
+    "updatedAt": "2023-06-15T10:30:00Z"
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+#### 4. 更新证书
+
+**端点：** `PUT /api/v1/certificates/{id}`
+
+**描述：** 更新证书信息
+
+**路径参数：**
+- `id` (number): 证书ID
+
+**请求体：**
+```json
+{
+  "name": "网站SSL证书（更新）",
+  "domain": "example.com",
+  "issuer": "Let's Encrypt",
+  "issueDate": "2023-01-15T00:00:00Z",
+  "expiryDate": "2024-06-15T00:00:00Z",
+  "certificateType": "SSL/TLS"
+}
+```
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "更新证书成功",
+  "data": {
+    "id": 1,
+    "name": "网站SSL证书（更新）",
+    "domain": "example.com",
+    "issuer": "Let's Encrypt",
+    "issueDate": "2023-01-15T00:00:00Z",
+    "expiryDate": "2024-06-15T00:00:00Z",
+    "certificateType": "SSL/TLS",
+    "status": "NORMAL",
+    "createdAt": "2023-01-20T08:30:00Z",
+    "updatedAt": "2023-06-15T10:30:00Z"
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+#### 5. 删除证书
+
+**端点：** `DELETE /api/v1/certificates/{id}`
+
+**描述：** 删除证书
+
+**路径参数：**
+- `id` (number): 证书ID
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "删除证书成功",
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+### 监控日志 API
+
+#### 1. 获取监控日志列表
+
+**端点：** `GET /api/v1/monitoring-logs`
+
+**描述：** 获取监控日志列表，支持分页、排序和筛选
+
+**请求参数：**
+- `page` (number, 可选): 页码，默认为 1
+- `size` (number, 可选): 每页大小，默认为 20
+- `sort` (string, 可选): 排序字段，如 "logTime,desc"
+- `logType` (string, 可选): 筛选日志类型，如 "MONITORING"、"ALERT_EMAIL"、"ALERT_SMS"
+- `certificateId` (number, 可选): 筛选证书ID
+- `startDate` (string, 可选): 开始日期，格式为 "YYYY-MM-DD"
+- `endDate` (string, 可选): 结束日期，格式为 "YYYY-MM-DD"
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "获取监控日志列表成功",
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "certificateId": 1,
+        "logType": "MONITORING",
+        "logTime": "2023-06-15T10:00:00Z",
+        "message": "证书监控检查完成",
+        "daysUntilExpiry": 30,
+        "createdAt": "2023-06-15T10:00:00Z"
+      },
+      {
+        "id": 2,
+        "certificateId": 1,
+        "logType": "ALERT_EMAIL",
+        "logTime": "2023-06-15T10:00:00Z",
+        "message": "发送证书过期预警邮件",
+        "daysUntilExpiry": 30,
+        "createdAt": "2023-06-15T10:00:00Z"
+      }
+    ],
+    "pageable": {
+      "sort": {
+        "empty": false,
+        "sorted": true,
+        "unsorted": false
+      },
+      "offset": 0,
+      "pageNumber": 0,
+      "pageSize": 20,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "totalPages": 1,
+    "totalElements": 2,
+    "size": 20,
+    "number": 0,
+    "sort": {
+      "empty": false,
+      "sorted": true,
+      "unsorted": false
+    },
+    "first": true,
+    "numberOfElements": 2,
+    "empty": false
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+### 系统管理 API
+
+#### 1. 手动触发证书监控
+
+**端点：** `POST /api/v1/system/monitor-certificates`
+
+**描述：** 手动触发证书监控检查
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "证书监控检查已启动",
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+#### 2. 获取系统状态
+
+**端点：** `GET /api/v1/system/status`
+
+**描述：** 获取系统状态信息
+
+**成功响应示例：**
+```json
+{
+  "success": true,
+  "code": 200,
+  "message": "获取系统状态成功",
+  "data": {
+    "status": "RUNNING",
+    "uptime": "2d 5h 30m",
+    "certificateCount": 10,
+    "normalCount": 8,
+    "expiringSoonCount": 1,
+    "expiredCount": 1,
+    "lastMonitoringTime": "2023-06-15T10:00:00Z",
+    "nextMonitoringTime": "2023-06-15T11:00:00Z"
+  },
+  "timestamp": "2023-06-15T10:30:00Z"
+}
+```
+
+### 错误代码定义
+
+| 代码 | 名称 | 描述 |
+|------|------|------|
+| 200 | OK | 请求成功 |
+| 201 | Created | 资源创建成功 |
+| 400 | Bad Request | 请求参数错误 |
+| 401 | Unauthorized | 未授权访问 |
+| 403 | Forbidden | 禁止访问 |
+| 404 | Not Found | 资源不存在 |
+| 500 | Internal Server Error | 服务器内部错误 |
+| 10001 | Certificate Not Found | 证书不存在 |
+| 10002 | Certificate Validation Failed | 证书验证失败 |
+| 10003 | Certificate Already Exists | 证书已存在 |
+| 10004 | Monitoring Failed | 监控失败 |
+| 10005 | Alert Sending Failed | 预警发送失败 |
