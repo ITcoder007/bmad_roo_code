@@ -651,3 +651,329 @@ interface ApiError {
 | 10003 | Certificate Already Exists | 证书已存在 |
 | 10004 | Monitoring Failed | 监控失败 |
 | 10005 | Alert Sending Failed | 预警发送失败 |
+
+## 组件
+
+定义前端和后端的核心组件，包括它们的职责和交互方式。
+
+### 前端组件
+
+#### 1. App.vue（根组件）
+
+**职责：** 应用程序的根组件，负责整体布局和路由配置
+
+**关键特性：**
+- 应用整体布局结构
+- 路由配置和导航
+- 全局状态管理
+- 全局样式和主题
+
+**子组件：**
+- Header
+- Sidebar
+- MainContent
+
+#### 2. CertificateList.vue（证书列表组件）
+
+**职责：** 显示证书列表，提供搜索、筛选和排序功能
+
+**关键特性：**
+- 证书列表展示
+- 分页功能
+- 搜索功能（按证书名称和域名）
+- 筛选功能（按证书状态）
+- 排序功能（按到期日期和状态）
+- 批量操作（查看、编辑、删除）
+
+**数据依赖：**
+- Certificate[] - 证书列表数据
+- 分页信息
+- 筛选和排序参数
+
+**API 调用：**
+- GET /api/v1/certificates - 获取证书列表
+- DELETE /api/v1/certificates/{id} - 删除证书
+
+#### 3. CertificateDetail.vue（证书详情组件）
+
+**职责：** 显示单个证书的详细信息，提供编辑和删除功能
+
+**关键特性：**
+- 证书详细信息展示
+- 证书状态可视化
+- 编辑证书信息
+- 删除证书
+- 相关监控日志查看
+
+**数据依赖：**
+- Certificate - 证书详细信息
+- MonitoringLog[] - 相关监控日志
+
+**API 调用：**
+- GET /api/v1/certificates/{id} - 获取证书详情
+- PUT /api/v1/certificates/{id} - 更新证书
+- DELETE /api/v1/certificates/{id} - 删除证书
+- GET /api/v1/monitoring-logs?certificateId={id} - 获取相关监控日志
+
+#### 4. CertificateForm.vue（证书表单组件）
+
+**职责：** 提供证书创建和编辑表单
+
+**关键特性：**
+- 表单验证
+- 日期选择器
+- 提交和取消按钮
+- 错误提示
+
+**数据依赖：**
+- Certificate - 证书数据（编辑时）
+- 表单验证规则
+
+**API 调用：**
+- POST /api/v1/certificates - 创建证书
+- PUT /api/v1/certificates/{id} - 更新证书
+
+#### 5. Dashboard.vue（仪表板组件）
+
+**职责：** 显示系统概览和关键指标
+
+**关键特性：**
+- 证书统计信息
+- 证书状态分布图表
+- 即将过期证书列表
+- 最近添加的证书列表
+- 系统状态信息
+
+**数据依赖：**
+- 证书统计数据
+- 即将过期证书列表
+- 系统状态信息
+
+**API 调用：**
+- GET /api/v1/certificates?status=EXPIRING_SOON - 获取即将过期证书
+- GET /api/v1/certificates?sort=createdAt,desc - 获取最近添加的证书
+- GET /api/v1/system/status - 获取系统状态
+
+#### 6. MonitoringLogList.vue（监控日志列表组件）
+
+**职责：** 显示监控日志列表，提供筛选和搜索功能
+
+**关键特性：**
+- 监控日志列表展示
+- 分页功能
+- 筛选功能（按日志类型和证书）
+- 搜索功能
+- 时间范围选择
+
+**数据依赖：**
+- MonitoringLog[] - 监控日志列表数据
+- 分页信息
+- 筛选参数
+
+**API 调用：**
+- GET /api/v1/monitoring-logs - 获取监控日志列表
+
+#### 7. Header.vue（页头组件）
+
+**职责：** 显示应用程序页头，包含导航和用户信息
+
+**关键特性：**
+- 应用程序标题
+- 导航菜单
+- 用户信息显示
+- 退出登录按钮
+
+#### 8. Sidebar.vue（侧边栏组件）
+
+**职责：** 显示侧边栏导航菜单
+
+**关键特性：**
+- 导航菜单项
+- 菜单图标
+- 当前活动项高亮
+
+### 后端组件
+
+#### 1. CertificateController（证书控制器）
+
+**职责：** 处理证书相关的 HTTP 请求
+
+**关键方法：**
+- getCertificates() - 获取证书列表
+- getCertificate(id) - 获取单个证书
+- createCertificate(certificate) - 创建证书
+- updateCertificate(id, certificate) - 更新证书
+- deleteCertificate(id) - 删除证书
+
+**依赖服务：**
+- CertificateService
+
+#### 2. MonitoringLogController（监控日志控制器）
+
+**职责：** 处理监控日志相关的 HTTP 请求
+
+**关键方法：**
+- getMonitoringLogs() - 获取监控日志列表
+
+**依赖服务：**
+- MonitoringLogService
+
+#### 3. SystemController（系统控制器）
+
+**职责：** 处理系统管理相关的 HTTP 请求
+
+**关键方法：**
+- monitorCertificates() - 手动触发证书监控
+- getSystemStatus() - 获取系统状态
+
+**依赖服务：**
+- MonitoringService
+- SystemStatusService
+
+#### 4. CertificateService（证书服务）
+
+**职责：** 实现证书相关的业务逻辑
+
+**关键方法：**
+- findAll() - 查询所有证书
+- findById(id) - 根据ID查询证书
+- save(certificate) - 保存证书
+- update(id, certificate) - 更新证书
+- deleteById(id) - 删除证书
+- calculateStatus(certificate) - 计算证书状态
+- validateCertificate(certificate) - 验证证书数据
+
+**依赖组件：**
+- CertificateRepository
+- MonitoringLogService
+
+#### 5. MonitoringLogService（监控日志服务）
+
+**职责：** 实现监控日志相关的业务逻辑
+
+**关键方法：**
+- findAll() - 查询所有监控日志
+- save(log) - 保存监控日志
+- logMonitoring(certificate, daysUntilExpiry) - 记录监控日志
+- logAlert(certificate, daysUntilExpiry, alertType) - 记录预警日志
+
+**依赖组件：**
+- MonitoringLogRepository
+
+#### 6. MonitoringService（监控服务）
+
+**职责：** 实现证书监控的业务逻辑
+
+**关键方法：**
+- monitorAllCertificates() - 监控所有证书
+- monitorCertificate(certificate) - 监控单个证书
+- checkCertificateStatus(certificate) - 检查证书状态
+- triggerAlerts(certificate, daysUntilExpiry) - 触发预警
+
+**依赖组件：**
+- CertificateService
+- MonitoringLogService
+- AlertService
+
+#### 7. AlertService（预警服务）
+
+**职责：** 实现预警发送的业务逻辑
+
+**关键方法：**
+- sendEmailAlert(certificate, daysUntilExpiry) - 发送邮件预警
+- sendSmsAlert(certificate, daysUntilExpiry) - 发送短信预警
+
+**依赖组件：**
+- MonitoringLogService
+
+#### 8. SystemStatusService（系统状态服务）
+
+**职责：** 提供系统状态信息
+
+**关键方法：**
+- getSystemStatus() - 获取系统状态
+- getCertificateStatistics() - 获取证书统计信息
+
+**依赖组件：**
+- CertificateRepository
+- MonitoringLogRepository
+
+#### 9. Certificate（证书实体）
+
+**职责：** 表示证书数据模型
+
+**关键属性：**
+- id: Long
+- name: String
+- domain: String
+- issuer: String
+- issueDate: Date
+- expiryDate: Date
+- certificateType: String
+- status: CertificateStatus
+- createdAt: Date
+- updatedAt: Date
+
+#### 10. MonitoringLog（监控日志实体）
+
+**职责：** 表示监控日志数据模型
+
+**关键属性：**
+- id: Long
+- certificateId: Long
+- logType: String
+- logTime: Date
+- message: String
+- daysUntilExpiry: Integer
+- createdAt: Date
+
+#### 11. CertificateRepository（证书仓库）
+
+**职责：** 提供证书数据访问层
+
+**关键方法：**
+- findAll() - 查询所有证书
+- findById(id) - 根据ID查询证书
+- save(certificate) - 保存证书
+- update(certificate) - 更新证书
+- deleteById(id) - 删除证书
+- findByStatus(status) - 根据状态查询证书
+- findByExpiryDateBefore(date) - 查询到期日期在指定日期之前的证书
+
+#### 12. MonitoringLogRepository（监控日志仓库）
+
+**职责：** 提供监控日志数据访问层
+
+**关键方法：**
+- findAll() - 查询所有监控日志
+- save(log) - 保存监控日志
+- findByCertificateId(certificateId) - 根据证书ID查询监控日志
+- findByLogTypeAndDateRange(logType, startDate, endDate) - 根据日志类型和日期范围查询监控日志
+
+#### 13. CertificateScheduler（证书调度器）
+
+**职责：** 定时执行证书监控任务
+
+**关键方法：**
+- monitorCertificatesTask() - 定时监控证书任务
+
+**依赖组件：**
+- MonitoringService
+
+#### 14. SecurityConfig（安全配置）
+
+**职责：** 配置应用程序安全性
+
+**关键配置：**
+- JWT 认证配置
+- API 端点安全规则
+- CORS 配置
+
+#### 15. GlobalExceptionHandler（全局异常处理器）
+
+**职责：** 处理应用程序异常并返回统一错误响应
+
+**关键方法：**
+- handleException() - 处理通用异常
+- handleValidationException() - 处理验证异常
+- handleBusinessException() - 处理业务异常
