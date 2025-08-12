@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://test-db-server:3306/certificate_management_test?useSSL=true&serverTimezone=UTC&characterEncoding=utf8
+    username: ${DB_USERNAME:testuser}
+    password: ${DB_PASSWORD:testpass}
+  security:
+    jwt:
+      secret: ${JWT_SECRET:test-secret-key-for-jwt-token-generation}
+      expiration: 86400000
+      
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.example.certificate.domain.model
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      
+logging:
+  level:
+    com.example.certificate: INFO
+    org.springframework.security: INFO

@@ -1,0 +1,29 @@
+{
+  "name": "certificate-lifecycle-management",
+  "version": "1.0.0",
+  "description": "Enterprise Certificate Lifecycle Management System",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:web\" \"npm run dev:api\"",
+    "dev:web": "cd frontend && npm run dev",
+    "dev:api": "cd backend && mvn spring-boot:run -Dspring-boot.run.profiles=dev",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "cd frontend && npm run build",
+    "build:api": "cd backend && mvn clean package",
+    "test": "npm run test:web && npm run test:api",
+    "test:web": "cd frontend && npm run test",
+    "test:api": "cd backend && mvn test",
+    "install:all": "npm install && cd frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "keywords": [
+    "certificate",
+    "management",
+    "lifecycle",
+    "enterprise"
+  ],
+  "author": "Certificate Management Team",
+  "license": "UNLICENSED"
+}
