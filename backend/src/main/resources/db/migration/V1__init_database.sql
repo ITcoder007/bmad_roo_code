@@ -1,7 +1,7 @@
 -- 创建数据库
-CREATE DATABASE IF NOT EXISTS certificate_db DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE IF NOT EXISTS cc_vibe_opus_certificate_management DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-USE certificate_db;
+USE cc_vibe_opus_certificate_management;
 
 -- 证书表
 CREATE TABLE IF NOT EXISTS `certificate` (

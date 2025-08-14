@@ -8,9 +8,9 @@ spring:
     name: certificate-management
   
   datasource:
-    url: jdbc:mysql://localhost:3306/certificate_db?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/cc_vibe_opus_certificate_management?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
-    password: root123
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       minimum-idle: 5

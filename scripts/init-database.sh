@@ -6,7 +6,7 @@ echo "初始化数据库..."
 DB_HOST=${DB_HOST:-localhost}
 DB_PORT=${DB_PORT:-3306}
 DB_USER=${DB_USER:-root}
-DB_PASS=${DB_PASS:-root123}
+DB_PASS=${DB_PASS:-root}
 
 # 检查MySQL是否安装
 if ! command -v mysql &> /dev/null; then
