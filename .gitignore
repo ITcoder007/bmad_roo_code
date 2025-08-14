@@ -1,3 +1,56 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# 编译输出
+**/target/
+out/
+
+# 日志文件
+*.log
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 环境配置
+.env
+*.env
+*.local
+*.properties.local
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# 依赖缓存
+/.mvn/
+**/node_modules/
+
+# 其他常见忽略
+*.class
+*.jar
+*.war
+*.ear
+
+# VSCode
+.vscode/
+
+# 其他IDE
+*.swp
+*.swo
+
+# Spring Boot 特有
+spring-boot-devtools.properties
+spring-boot-devtools.yml
+spring-boot-devtools.yaml
+/**/package-lock.json
+
+
+
+
+
+
 # Dependencies
 node_modules/
 pnpm-lock.yaml
@@ -28,21 +81,22 @@ Thumbs.db
 # IDE and editor configs
 .windsurf/
 .trae/
-.bmad*/.cursor/
+#.bmad*/.cursor/
 
 # AI assistant files
-CLAUDE.md
-.ai/*
-.claude
-.gemini
+#CLAUDE.md
+#.ai/*
+#.claude
+#.gemini
 
 # Project-specific
-.bmad-core
-.bmad-creator-tools
-test-project-install/*
-sample-project/*
+#.bmad-core
+#.bmad-creator-tools
+#test-project-install/*
+#sample-project/*
 /.idea/.gitignore
 /.idea/bmad_roo_code.iml
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+/frontend/package-lock.json
