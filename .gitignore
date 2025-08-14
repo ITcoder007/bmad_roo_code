@@ -1,3 +1,56 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# 编译输出
+**/target/
+out/
+
+# 日志文件
+*.log
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+
+# 环境配置
+.env
+*.env
+*.local
+*.properties.local
+
+# Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# 依赖缓存
+/.mvn/
+**/node_modules/
+
+# 其他常见忽略
+*.class
+*.jar
+*.war
+*.ear
+
+# VSCode
+.vscode/
+
+# 其他IDE
+*.swp
+*.swo
+
+# Spring Boot 特有
+spring-boot-devtools.properties
+spring-boot-devtools.yml
+spring-boot-devtools.yaml
+/cert-management/frontend/package-lock.json
+
+
+
+
+
+
 # Dependencies
 node_modules/
 pnpm-lock.yaml
@@ -46,3 +99,4 @@ sample-project/*
 /.idea/misc.xml
 /.idea/modules.xml
 /.idea/vcs.xml
+/frontend/package-lock.json
