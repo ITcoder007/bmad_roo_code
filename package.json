@@ -1,0 +1,41 @@
+{
+  "name": "certificate-lifecycle-management",
+  "version": "1.0.0",
+  "description": "Certificate Lifecycle Management System - Monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && mvn spring-boot:run",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && mvn clean package",
+    "install:all": "npm install && cd frontend && npm install",
+    "test": "npm run test:frontend && npm run test:backend",
+    "test:frontend": "cd frontend && npm test",
+    "test:backend": "cd backend && mvn test",
+    "lint": "cd frontend && npm run lint",
+    "format": "cd frontend && npm run format",
+    "clean": "rm -rf frontend/node_modules frontend/dist backend/target"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/certificate-lifecycle-management.git"
+  },
+  "keywords": [
+    "certificate",
+    "management",
+    "monitoring",
+    "vue",
+    "spring-boot"
+  ],
+  "author": "Your Organization",
+  "license": "MIT"
+}

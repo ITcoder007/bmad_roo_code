@@ -1,102 +1,136 @@
-# IntelliJ IDEA
-.idea/
-*.iml
-*.iws
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
-# 编译输出
-**/target/
-out/
+# Testing
+coverage/
+*.lcov
+.nyc_output
 
-# 日志文件
-*.log
-
-# 操作系统文件
-.DS_Store
-Thumbs.db
-
-# 环境配置
-.env
-*.env
-*.local
-*.properties.local
-
-# Maven Wrapper
-.mvn/wrapper/maven-wrapper.jar
-
-# 依赖缓存
-/.mvn/
-**/node_modules/
-
-# 其他常见忽略
-*.class
+# Production
+/build
+/dist
+target/
 *.jar
 *.war
 *.ear
 
-# VSCode
-.vscode/
+# Misc
+.DS_Store
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
 
-# 其他IDE
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
 *.swp
 *.swo
+*~
+.project
+.classpath
+.settings/
 
-# Spring Boot 特有
-spring-boot-devtools.properties
-spring-boot-devtools.yml
-spring-boot-devtools.yaml
-/**/package-lock.json
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
 
+# Java
+*.class
+*.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
 
-
-
-
-
-# Dependencies
-node_modules/
-pnpm-lock.yaml
-bun.lock
-deno.lock
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
 
 # Logs
 logs/
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Build output
-build/*.txt
-web-bundles/
-
-# Environment variables
-.env
-
-# System files
+# OS
 .DS_Store
 Thumbs.db
+*.bak
 
-# Development tools and configs
-.prettierignore
-.prettierrc
-.husky/
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+.temp/
 
-# IDE and editor configs
-.windsurf/
-.trae/
-#.bmad*/.cursor/
+# Build outputs
+dist/
+build/
+out/
 
-# AI assistant files
-#CLAUDE.md
-#.ai/*
-#.claude
-#.gemini
+# Local configuration
+.env
+.env.*
+!.env.example
 
-# Project-specific
-#.bmad-core
-#.bmad-creator-tools
-#test-project-install/*
-#sample-project/*
-/.idea/.gitignore
-/.idea/bmad_roo_code.iml
-/.idea/misc.xml
-/.idea/modules.xml
-/.idea/vcs.xml
-/frontend/package-lock.json
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Package files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Vue/Vite specific
+dist-ssr
+*.local
+.vite/
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
