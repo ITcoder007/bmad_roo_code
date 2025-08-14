@@ -1,0 +1,8 @@
+node_modules/
+dist/
+coverage/
+*.min.js
+tests/
+jest.config.js
+.babelrc
+vite.config.js

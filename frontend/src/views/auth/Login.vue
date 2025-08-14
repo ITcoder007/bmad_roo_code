@@ -2,7 +2,10 @@
   <div class="login-container">
     <el-card class="login-card">
       <h2>证书生命周期管理系统</h2>
-      <el-form :model="loginForm" @submit.prevent="handleLogin">
+      <el-form
+        :model="loginForm"
+        @submit.prevent="handleLogin"
+      >
         <el-form-item>
           <el-input
             v-model="loginForm.username"
@@ -19,7 +22,11 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleLogin" style="width: 100%">
+          <el-button
+            type="primary"
+            style="width: 100%"
+            @click="handleLogin"
+          >
             登录
           </el-button>
         </el-form-item>
