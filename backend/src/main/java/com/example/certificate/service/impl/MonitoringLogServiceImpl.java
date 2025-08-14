@@ -44,14 +44,14 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
         String message = String.format("证书 [%s] 已创建，域名: %s，到期日期: %s", 
             certificate.getName(), certificate.getDomain(), certificate.getExpiryDate());
         
-        MonitoringLog log = MonitoringLog.createLog(
+        MonitoringLog monitoringLog = MonitoringLog.createLog(
             certificate.getId(), 
             LogType.MONITORING, 
             message,
             (int) certificate.getDaysUntilExpiry()
         );
         
-        monitoringLogMapper.insert(log);
+        monitoringLogMapper.insert(monitoringLog);
         log.info(message);
     }
     
@@ -60,14 +60,14 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
         String message = String.format("证书 [%s] 已更新，状态: %s", 
             certificate.getName(), certificate.getStatus().getDescription());
         
-        MonitoringLog log = MonitoringLog.createLog(
+        MonitoringLog monitoringLog = MonitoringLog.createLog(
             certificate.getId(),
             LogType.MONITORING,
             message,
             (int) certificate.getDaysUntilExpiry()
         );
         
-        monitoringLogMapper.insert(log);
+        monitoringLogMapper.insert(monitoringLog);
         log.info(message);
     }
     
@@ -75,14 +75,14 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
     public void logCertificateDeleted(Certificate certificate) {
         String message = String.format("证书 [%s] 已删除", certificate.getName());
         
-        MonitoringLog log = MonitoringLog.createLog(
+        MonitoringLog monitoringLog = MonitoringLog.createLog(
             certificate.getId(),
             LogType.MONITORING,
             message,
             null
         );
         
-        monitoringLogMapper.insert(log);
+        monitoringLogMapper.insert(monitoringLog);
         log.info(message);
     }
     
@@ -94,14 +94,14 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
             certificate.getDaysUntilExpiry()
         );
         
-        MonitoringLog log = MonitoringLog.createLog(
+        MonitoringLog monitoringLog = MonitoringLog.createLog(
             certificate.getId(),
             LogType.MONITORING,
             message,
             (int) certificate.getDaysUntilExpiry()
         );
         
-        monitoringLogMapper.insert(log);
+        monitoringLogMapper.insert(monitoringLog);
         log.info(message);
     }
     
@@ -114,23 +114,23 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
             certificate.getDaysUntilExpiry()
         );
         
-        MonitoringLog log = MonitoringLog.createLog(
+        MonitoringLog monitoringLog = MonitoringLog.createLog(
             certificate.getId(),
             logType,
             message,
             (int) certificate.getDaysUntilExpiry()
         );
         
-        monitoringLogMapper.insert(log);
+        monitoringLogMapper.insert(monitoringLog);
         log.warn(message);
     }
     
-    private MonitoringLogDto toDto(MonitoringLog log) {
+    private MonitoringLogDto toDto(MonitoringLog monitoringLog) {
         MonitoringLogDto dto = new MonitoringLogDto();
-        BeanUtils.copyProperties(log, dto);
+        BeanUtils.copyProperties(monitoringLog, dto);
         
         // 获取证书信息
-        Certificate certificate = certificateMapper.selectById(log.getCertificateId());
+        Certificate certificate = certificateMapper.selectById(monitoringLog.getCertificateId());
         if (certificate != null) {
             dto.setCertificateName(certificate.getName());
             dto.setDomain(certificate.getDomain());
