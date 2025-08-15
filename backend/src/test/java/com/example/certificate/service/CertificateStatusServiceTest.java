@@ -101,7 +101,8 @@ class CertificateStatusServiceTest {
     @Test
     @DisplayName("测试批量证书状态计算 - 使用默认阈值")
     void bulkCalculateStatus_defaultThreshold() {
-        // Given: 多个证书
+        // Given: 多个证书和配置的默认阈值
+        when(certificateStatusConfig.getExpiringSoonDays()).thenReturn(30);
         Certificate cert1 = createCertificate(1L, 45); // 正常
         Certificate cert2 = createCertificate(2L, 15); // 即将过期
         Certificate cert3 = createCertificate(3L, -5); // 已过期
@@ -177,7 +178,9 @@ class CertificateStatusServiceTest {
     @Test
     @DisplayName("测试批量更新所有证书状态 - 使用默认阈值")
     void updateAllCertificateStatus_defaultThreshold() {
-        // Given: 模拟分页数据
+        // Given: 模拟分页数据和配置
+        when(certificateStatusConfig.getExpiringSoonDays()).thenReturn(30);
+        when(certificateStatusConfig.getBatchSize()).thenReturn(100);
         Certificate cert1 = createCertificate(1L, 45);
         Certificate cert2 = createCertificate(2L, 15);
         List<Certificate> page1 = Arrays.asList(cert1, cert2);
@@ -198,7 +201,8 @@ class CertificateStatusServiceTest {
     @Test
     @DisplayName("测试批量更新所有证书状态 - 使用自定义阈值")
     void updateAllCertificateStatus_customThreshold() {
-        // Given: 模拟分页数据
+        // Given: 模拟分页数据和配置
+        when(certificateStatusConfig.getBatchSize()).thenReturn(100);
         Certificate cert1 = createCertificate(1L, 25);
         List<Certificate> page1 = Arrays.asList(cert1);
         List<Certificate> emptyPage = Collections.emptyList();
@@ -219,6 +223,8 @@ class CertificateStatusServiceTest {
     @DisplayName("测试批量更新时处理更新失败的情况")
     void updateAllCertificateStatus_handleUpdateFailure() {
         // Given: 模拟分页数据和更新失败
+        when(certificateStatusConfig.getExpiringSoonDays()).thenReturn(30);
+        when(certificateStatusConfig.getBatchSize()).thenReturn(100);
         Certificate cert1 = createCertificate(1L, 15);
         List<Certificate> page1 = Arrays.asList(cert1);
         List<Certificate> emptyPage = Collections.emptyList();
