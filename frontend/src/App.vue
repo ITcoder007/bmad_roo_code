@@ -4,10 +4,15 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
+<script setup>
+import { provide } from 'vue'
+
+// 为整个应用提供全局配置
+provide('appConfig', {
+  name: import.meta.env.VITE_APP_NAME,
+  version: import.meta.env.VITE_APP_VERSION,
+  title: import.meta.env.VITE_APP_TITLE
+})
 </script>
 
 <style>
@@ -23,5 +28,10 @@ html, body, #app {
     'Microsoft YaHei', '微软雅黑', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+#app {
+  min-height: 100vh;
 }
 </style>
