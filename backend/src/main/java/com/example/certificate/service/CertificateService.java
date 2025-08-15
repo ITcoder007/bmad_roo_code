@@ -1,6 +1,7 @@
 package com.example.certificate.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.certificate.controller.request.CertificateQueryRequest;
 import com.example.certificate.service.dto.CertificateCreateDto;
 import com.example.certificate.service.dto.CertificateDto;
 import com.example.certificate.service.dto.CertificateUpdateDto;
@@ -77,4 +78,11 @@ public interface CertificateService {
      * @return 是否存在
      */
     boolean isDomainExists(String domain, Long excludeId);
+    
+    /**
+     * 根据查询请求查询证书列表（支持多状态筛选）
+     * @param queryRequest 查询请求对象
+     * @return 分页的证书列表
+     */
+    Page<CertificateDto> getCertificateListWithQuery(CertificateQueryRequest queryRequest);
 }

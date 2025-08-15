@@ -3,9 +3,11 @@ package com.example.certificate.service.impl;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.certificate.common.exception.BusinessException;
 import com.example.certificate.common.exception.ErrorCode;
+import com.example.certificate.controller.request.CertificateQueryRequest;
 import com.example.certificate.domain.model.Certificate;
 import com.example.certificate.domain.repository.CertificateRepository;
 import com.example.certificate.service.CertificateService;
+import com.example.certificate.service.CertificateStatusService;
 import com.example.certificate.service.converter.CertificateServiceConverter;
 import com.example.certificate.service.dto.CertificateCreateDto;
 import com.example.certificate.service.dto.CertificateDto;
@@ -37,6 +39,9 @@ public class CertificateServiceImpl implements CertificateService {
     @Resource
     private CertificateServiceConverter serviceConverter;
     
+    @Resource
+    private CertificateStatusService certificateStatusService;
+    
     @Override
     public CertificateDto createCertificate(CertificateCreateDto createDto) {
         logger.info("开始创建证书，域名: {}", createDto.getDomain());
@@ -56,11 +61,12 @@ public class CertificateServiceImpl implements CertificateService {
         }
         
         try {
-            // 转换并保存
+            // 转换并设置状态
             Certificate certificate = serviceConverter.toCreateDomain(createDto);
+            certificate.updateStatus(); // 计算并设置状态
             Certificate savedCertificate = certificateRepository.save(certificate);
             
-            logger.info("证书创建成功，ID: {}", savedCertificate.getId());
+            logger.info("证书创建成功，ID: {}, 状态: {}", savedCertificate.getId(), savedCertificate.getStatus());
             return serviceConverter.toDto(savedCertificate);
         } catch (Exception e) {
             logger.error("证书保存失败", e);
@@ -117,11 +123,12 @@ public class CertificateServiceImpl implements CertificateService {
         }
         
         try {
-            // 合并更新并保存
+            // 合并更新并重新计算状态
             Certificate updatedCertificate = serviceConverter.mergeUpdateDto(existingCertificate, updateDto);
+            updatedCertificate.updateStatus(); // 重新计算状态
             Certificate savedCertificate = certificateRepository.save(updatedCertificate);
             
-            logger.info("证书更新成功，ID: {}", savedCertificate.getId());
+            logger.info("证书更新成功，ID: {}, 状态: {}", savedCertificate.getId(), savedCertificate.getStatus());
             return serviceConverter.toDto(savedCertificate);
         } catch (Exception e) {
             logger.error("证书更新失败", e);
@@ -201,6 +208,34 @@ public class CertificateServiceImpl implements CertificateService {
     @Transactional(readOnly = true)
     public boolean isDomainExists(String domain, Long excludeId) {
         return certificateRepository.findByDomainExcludeId(domain, excludeId).isPresent();
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Page<CertificateDto> getCertificateListWithQuery(CertificateQueryRequest queryRequest) {
+        logger.debug("根据查询请求查询证书列表，页码: {}, 每页大小: {}", 
+                queryRequest.getPageNum(), queryRequest.getPageSize());
+        
+        // 参数验证
+        validatePageParameters(queryRequest.getPageNum(), queryRequest.getPageSize());
+        
+        // 验证日期范围
+        if (!queryRequest.isValidDateRange()) {
+            throw BusinessException.of(ErrorCode.PAGE_PARAMETER_INVALID, "到期日期范围无效");
+        }
+        
+        // 调用存储库的新查询方法
+        Page<Certificate> certificatePage = certificateRepository.findPageWithQuery(queryRequest);
+        
+        // 转换为 DTO 分页结果
+        Page<CertificateDto> dtoPage = new Page<>(queryRequest.getPageNum(), queryRequest.getPageSize());
+        dtoPage.setTotal(certificatePage.getTotal());
+        dtoPage.setRecords(certificatePage.getRecords().stream()
+                .map(serviceConverter::toDto)
+                .collect(Collectors.toList()));
+        
+        logger.debug("查询完成，返回 {} 条记录", dtoPage.getRecords().size());
+        return dtoPage;
     }
     
     /**

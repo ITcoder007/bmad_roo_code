@@ -61,3 +61,24 @@ mybatis-plus:
 jwt:
   secret: ${JWT_SECRET:certificateManagementSecretKey2024}
   expiration: 86400000
+
+# 证书状态配置
+certificate:
+  status:
+    # 即将过期阈值天数（默认30天）
+    expiring-soon-days: ${CERTIFICATE_EXPIRING_SOON_DAYS:30}
+    # 状态检查间隔（毫秒，默认24小时）
+    check-interval: ${CERTIFICATE_CHECK_INTERVAL:86400000}
+  
+  # 定时任务配置
+  scheduler:
+    # 是否启用调度器
+    enabled: ${CERTIFICATE_SCHEDULER_ENABLED:true}
+    # 每天凌晨1点执行状态更新
+    cron: ${CERTIFICATE_SCHEDULER_CRON:0 0 1 * * ?}
+    # 每小时执行监控检查
+    monitor-cron: ${CERTIFICATE_MONITOR_CRON:0 0 * * * ?}
+    # 最大重试次数
+    max-retries: ${CERTIFICATE_MAX_RETRIES:3}
+    # 批量处理大小
+    batch-size: ${CERTIFICATE_BATCH_SIZE:100}

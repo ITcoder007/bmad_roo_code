@@ -1,6 +1,7 @@
 package com.example.certificate.domain.repository;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.certificate.controller.request.CertificateQueryRequest;
 import com.example.certificate.domain.model.Certificate;
 import com.example.certificate.domain.model.CertificateStatus;
 
@@ -60,4 +61,34 @@ public interface CertificateRepository {
      * @return 证书信息
      */
     Optional<Certificate> findByDomainExcludeId(String domain, Long excludeId);
+    
+    /**
+     * 根据查询请求分页查询证书列表（支持多状态筛选）
+     * @param queryRequest 查询请求对象
+     * @return 分页结果
+     */
+    Page<Certificate> findPageWithQuery(CertificateQueryRequest queryRequest);
+    
+    /**
+     * 根据多个状态查找证书
+     * @param statusList 状态列表
+     * @return 证书列表
+     */
+    List<Certificate> findByStatusIn(List<CertificateStatus> statusList);
+    
+    /**
+     * 分页获取所有证书（用于批量处理）
+     * @param pageNum 页码
+     * @param pageSize 每页大小
+     * @return 证书列表
+     */
+    List<Certificate> selectAllPaged(int pageNum, int pageSize);
+    
+    /**
+     * 更新证书状态
+     * @param id 证书ID
+     * @param status 新状态
+     * @return 更新成功的行数
+     */
+    int updateStatus(Long id, CertificateStatus status);
 }

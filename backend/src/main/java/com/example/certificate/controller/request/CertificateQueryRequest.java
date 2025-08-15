@@ -6,7 +6,9 @@ import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 证书查询请求类
@@ -23,6 +25,12 @@ public class CertificateQueryRequest extends PageRequest {
     @Pattern(regexp = "^(NORMAL|EXPIRING_SOON|EXPIRED)$", 
              message = "证书状态必须是 NORMAL、EXPIRING_SOON 或 EXPIRED")
     private String status;
+    
+    /**
+     * 多状态筛选
+     * 支持同时筛选多个状态
+     */
+    private List<String> statusList;
     
     /**
      * 域名筛选（模糊搜索）
@@ -63,9 +71,23 @@ public class CertificateQueryRequest extends PageRequest {
      */
     public boolean hasFilters() {
         return status != null || 
+               (statusList != null && !statusList.isEmpty()) ||
                domain != null || 
                issuer != null || 
                expiryDateFrom != null || 
                expiryDateTo != null;
+    }
+    
+    /**
+     * 获取有效的状态列表（优先使用 statusList，其次使用 status）
+     */
+    public List<String> getEffectiveStatusList() {
+        if (statusList != null && !statusList.isEmpty()) {
+            return statusList;
+        }
+        if (status != null) {
+            return Arrays.asList(status);
+        }
+        return null;
     }
 }

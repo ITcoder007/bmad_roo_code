@@ -48,6 +48,9 @@ public class CertificateServiceConverter {
             return null;
         }
         
+        // 确保状态是最新的
+        certificate.updateStatus();
+        
         return CertificateDto.builder()
                 .id(certificate.getId())
                 .name(certificate.getName())
@@ -57,6 +60,36 @@ public class CertificateServiceConverter {
                 .expiryDate(certificate.getExpiryDate())
                 .certificateType(certificate.getCertificateType())
                 .status(certificate.getStatus() != null ? certificate.getStatus().name() : null)
+                .daysUntilExpiry(certificate.getDaysUntilExpiry())
+                .createdAt(certificate.getCreatedAt())
+                .updatedAt(certificate.getUpdatedAt())
+                .build();
+    }
+    
+    /**
+     * 将领域模型转换为 DTO（使用自定义阈值）
+     * @param certificate 领域模型
+     * @param expiringSoonThresholdDays 即将过期的阈值天数
+     * @return DTO
+     */
+    public CertificateDto toDto(Certificate certificate, int expiringSoonThresholdDays) {
+        if (certificate == null) {
+            return null;
+        }
+        
+        // 使用自定义阈值更新状态
+        certificate.updateStatus(expiringSoonThresholdDays);
+        
+        return CertificateDto.builder()
+                .id(certificate.getId())
+                .name(certificate.getName())
+                .domain(certificate.getDomain())
+                .issuer(certificate.getIssuer())
+                .issueDate(certificate.getIssueDate())
+                .expiryDate(certificate.getExpiryDate())
+                .certificateType(certificate.getCertificateType())
+                .status(certificate.getStatus() != null ? certificate.getStatus().name() : null)
+                .daysUntilExpiry(certificate.getDaysUntilExpiry())
                 .createdAt(certificate.getCreatedAt())
                 .updatedAt(certificate.getUpdatedAt())
                 .build();

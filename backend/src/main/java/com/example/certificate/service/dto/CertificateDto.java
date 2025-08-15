@@ -20,6 +20,7 @@ public class CertificateDto {
     private Date expiryDate;
     private String certificateType;
     private String status;
+    private Long daysUntilExpiry;
     private Date createdAt;
     private Date updatedAt;
 }
