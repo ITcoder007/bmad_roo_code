@@ -6,6 +6,56 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 证书生命周期管理系统 - 一个企业级证书监控和管理解决方案，旨在通过自动化减少证书管理人工成本，提高业务连续性。该系统采用 Monorepo 结构，包含 Vue.js 前端和 Spring Boot 后端。
 
+## 快速命令参考
+
+### 初始化设置
+```bash
+./scripts/setup.sh          # 一键安装所有依赖和环境设置
+```
+
+### 开发启动
+```bash
+npm run dev                 # 同时启动前后端开发服务器
+npm run dev:frontend        # 仅启动前端 (http://localhost:5173)
+npm run dev:backend         # 仅启动后端 (http://localhost:8080/api)
+./scripts/test-startup.sh   # 测试服务启动并验证健康状态
+```
+
+### 构建命令
+```bash
+npm run build              # 构建前后端生产版本
+npm run build:frontend     # 仅构建前端 (输出到 frontend/dist)
+npm run build:backend      # 仅构建后端 (输出 JAR 到 backend/target)
+./scripts/build.sh         # 使用脚本构建完整项目
+```
+
+### 测试命令
+```bash
+npm run test               # 运行所有测试
+npm run test:frontend      # 运行前端测试
+npm run test:backend       # 运行后端测试
+
+# 运行单个后端测试
+cd backend && mvn test -Dtest=CertificateServiceTest
+cd backend && mvn test -Dtest=CertificateServiceTest#testMethodName
+```
+
+### 代码质量
+```bash
+npm run lint               # 运行前端代码检查
+npm run format             # 格式化前端代码
+cd backend && mvn checkstyle:check  # 后端代码风格检查
+```
+
+### 数据库
+```bash
+# 创建数据库
+mysql -u root -proot -e "CREATE DATABASE cc_bmad_opus_certificate_management DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;"
+
+# 运行数据库迁移脚本
+mysql -u root -proot cc_bmad_opus_certificate_management < backend/src/main/resources/db/migration/V1__init.sql
+```
+
 ## 技术栈
 
 ### 前端
@@ -178,10 +228,70 @@ mvn package        # 打包成 JAR
 - 统一的日志格式和级别
 - 错误追踪和告警机制
 
+## 高层架构设计
+
+### 领域驱动设计 (DDD) 分层
+项目采用 DDD 架构，清晰分离关注点：
+
+1. **表现层 (Controller)** - `backend/src/main/java/com/example/certificate/controller/`
+   - REST API 端点定义
+   - 请求参数验证
+   - 响应格式统一封装
+
+2. **应用服务层 (Service)** - `backend/src/main/java/com/example/certificate/service/`
+   - 业务流程编排
+   - 事务管理
+   - DTO 转换
+
+3. **领域层 (Domain)** - `backend/src/main/java/com/example/certificate/domain/`
+   - 核心业务逻辑
+   - 领域模型和实体
+   - 领域服务和仓库接口
+
+4. **基础设施层 (Infrastructure)** - `backend/src/main/java/com/example/certificate/infrastructure/`
+   - 数据持久化实现
+   - 外部服务集成
+   - 技术实现细节
+
+### 关键设计模式
+
+1. **统一响应格式** - 所有 API 返回 `ApiResponse<T>` 包装
+2. **全局异常处理** - `GlobalExceptionHandler` 集中处理所有异常
+3. **仓库模式** - Repository 接口与实现分离
+4. **DTO 模式** - 使用 DTO 隔离领域模型与外部表示
+5. **转换器模式** - `ServiceConverter` 负责对象转换
+
+### 核心业务流程
+
+1. **证书状态计算流程**
+   - 领域模型 `Certificate` 包含 `calculateStatus()` 方法
+   - `CertificateStatusService` 提供批量计算和定时更新
+   - 状态规则：30天内即将过期，0天内已过期
+
+2. **定时监控流程**
+   - `CertificateStatusScheduler` 每天凌晨自动更新所有证书状态
+   - 支持手动触发监控
+   - 监控结果记录到 `MonitoringLog`
+
+3. **预警通知流程**
+   - MVP 阶段仅记录日志，不实际发送通知
+   - 预警规则可配置（30天、15天、7天、1天）
+
+### BMad 开发流程
+项目使用 BMad (Business Model Agile Development) 方法论：
+
+1. **故事文档** - `docs/stories/` 包含详细的用户故事和实现任务
+2. **架构文档** - `docs/architecture/` 包含系统架构规范
+3. **PRD 文档** - `docs/prd/` 包含产品需求和 Epic 定义
+4. **配置文件** - `.bmad-core/core-config.yaml` 定义项目配置
+
+开发新功能时，先查看对应的故事文档获取完整上下文。
+
 ## 注意事项
 
-1. **环境配置**: 开发前确保配置好 JDK 8、Node.js、MySQL 8.0
+1. **环境配置**: 开发前确保配置好 JDK 8、Node.js 16+、MySQL 8.0
 2. **依赖管理**: 使用 Maven 管理后端依赖，npm 管理前端依赖
-3. **跨域配置**: 开发环境需配置 CORS 支持前后端联调
-4. **数据库迁移**: 使用 SQL 脚本管理数据库版本
+3. **跨域配置**: 开发环境前端已配置代理到后端 `/api` 路径
+4. **数据库迁移**: 使用 SQL 脚本管理数据库版本（位于 `backend/src/main/resources/db/migration/`）
 5. **代码质量**: 提交前运行 lint 和测试，确保代码质量
+6. **Java 版本**: 必须使用 JDK 8，代码需要兼容 Java 8 特性（避免使用 Java 9+ 的 API）
