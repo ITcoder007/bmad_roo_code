@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.certificate.infrastructure.persistence.mapper.CertificateMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.certificate.infrastructure.persistence.entity.CertificateEntity">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="domain" property="domain"/>
+        <result column="issuer" property="issuer"/>
+        <result column="issue_date" property="issueDate"/>
+        <result column="expiry_date" property="expiryDate"/>
+        <result column="certificate_type" property="certificateType"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+
+    <select id="findExpiringSoon" resultMap="BaseResultMap">
+        SELECT * FROM certificate
+        WHERE expiry_date BETWEEN NOW() AND DATE_ADD(NOW(), INTERVAL #{days} DAY)
+        AND status != 'EXPIRED'
+        ORDER BY expiry_date ASC
+    </select>
+
+    <select id="findByDateRange" resultMap="BaseResultMap">
+        SELECT * FROM certificate
+        WHERE expiry_date BETWEEN #{startDate} AND #{endDate}
+        ORDER BY expiry_date ASC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE certificate
+        SET status = #{status}, updated_at = NOW()
+        WHERE id = #{id}
+    </update>
+
+</mapper>

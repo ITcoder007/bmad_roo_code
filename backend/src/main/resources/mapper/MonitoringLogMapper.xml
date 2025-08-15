@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.certificate.infrastructure.persistence.mapper.MonitoringLogMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.certificate.infrastructure.persistence.entity.MonitoringLogEntity">
+        <id column="id" property="id"/>
+        <result column="certificate_id" property="certificateId"/>
+        <result column="log_type" property="logType"/>
+        <result column="log_time" property="logTime"/>
+        <result column="message" property="message"/>
+        <result column="days_until_expiry" property="daysUntilExpiry"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="findRecentLogs" resultMap="BaseResultMap">
+        SELECT * FROM monitoring_log
+        WHERE certificate_id = #{certificateId}
+        ORDER BY log_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="countByTypeAndDateRange" resultType="int">
+        SELECT COUNT(*) FROM monitoring_log
+        WHERE log_type = #{logType}
+        AND log_time BETWEEN #{startDate} AND #{endDate}
+    </select>
+
+</mapper>
