@@ -1,6 +1,8 @@
 package com.example.certificate.infrastructure.repository.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.OrderItem;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.certificate.domain.model.Certificate;
 import com.example.certificate.domain.model.CertificateStatus;
 import com.example.certificate.domain.repository.CertificateRepository;
@@ -8,6 +10,7 @@ import com.example.certificate.infrastructure.persistence.entity.CertificateEnti
 import com.example.certificate.infrastructure.persistence.mapper.CertificateMapper;
 import com.example.certificate.infrastructure.converter.CertificateConverter;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -72,5 +75,104 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         wrapper.lt("expiry_date", date);
         List<CertificateEntity> entities = certificateMapper.selectList(wrapper);
         return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
+    }
+    
+    @Override
+    public Page<Certificate> findPage(int pageNum, int pageSize, String sortBy, String sortOrder) {
+        Page<CertificateEntity> page = new Page<>(pageNum, pageSize);
+        
+        // 设置排序
+        if (StringUtils.hasText(sortBy)) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setColumn(convertSortField(sortBy));
+            orderItem.setAsc(!"DESC".equalsIgnoreCase(sortOrder));
+            page.addOrder(orderItem);
+        }
+        
+        Page<CertificateEntity> entityPage = certificateMapper.selectPage(page, null);
+        
+        // 转换为 Domain 对象的分页结果
+        Page<Certificate> domainPage = new Page<>(pageNum, pageSize);
+        domainPage.setTotal(entityPage.getTotal());
+        domainPage.setRecords(entityPage.getRecords().stream()
+                .map(certificateConverter::toDomain)
+                .collect(Collectors.toList()));
+        
+        return domainPage;
+    }
+    
+    @Override
+    public Page<Certificate> findPageWithFilter(int pageNum, int pageSize, String sortBy, String sortOrder,
+                                                String status, String domain, String issuer) {
+        Page<CertificateEntity> page = new Page<>(pageNum, pageSize);
+        
+        // 设置排序
+        if (StringUtils.hasText(sortBy)) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setColumn(convertSortField(sortBy));
+            orderItem.setAsc(!"DESC".equalsIgnoreCase(sortOrder));
+            page.addOrder(orderItem);
+        }
+        
+        // 构建查询条件
+        QueryWrapper<CertificateEntity> wrapper = new QueryWrapper<>();
+        
+        if (StringUtils.hasText(status)) {
+            wrapper.eq("status", status);
+        }
+        
+        if (StringUtils.hasText(domain)) {
+            wrapper.like("domain", domain);
+        }
+        
+        if (StringUtils.hasText(issuer)) {
+            wrapper.like("issuer", issuer);
+        }
+        
+        Page<CertificateEntity> entityPage = certificateMapper.selectPage(page, wrapper);
+        
+        // 转换为 Domain 对象的分页结果
+        Page<Certificate> domainPage = new Page<>(pageNum, pageSize);
+        domainPage.setTotal(entityPage.getTotal());
+        domainPage.setRecords(entityPage.getRecords().stream()
+                .map(certificateConverter::toDomain)
+                .collect(Collectors.toList()));
+        
+        return domainPage;
+    }
+    
+    @Override
+    public Optional<Certificate> findByDomain(String domain) {
+        QueryWrapper<CertificateEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("domain", domain);
+        CertificateEntity entity = certificateMapper.selectOne(wrapper);
+        return Optional.ofNullable(entity).map(certificateConverter::toDomain);
+    }
+    
+    @Override
+    public Optional<Certificate> findByDomainExcludeId(String domain, Long excludeId) {
+        QueryWrapper<CertificateEntity> wrapper = new QueryWrapper<>();
+        wrapper.eq("domain", domain)
+               .ne("id", excludeId);
+        CertificateEntity entity = certificateMapper.selectOne(wrapper);
+        return Optional.ofNullable(entity).map(certificateConverter::toDomain);
+    }
+    
+    /**
+     * 转换排序字段名
+     */
+    private String convertSortField(String sortBy) {
+        switch (sortBy) {
+            case "name":
+                return "name";
+            case "domain":
+                return "domain";
+            case "expiryDate":
+                return "expiry_date";
+            case "createdAt":
+                return "created_at";
+            default:
+                return "created_at";
+        }
     }
 }
