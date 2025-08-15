@@ -6,7 +6,7 @@ import com.example.certificate.domain.model.CertificateStatus;
 import com.example.certificate.domain.repository.CertificateRepository;
 import com.example.certificate.infrastructure.persistence.entity.CertificateEntity;
 import com.example.certificate.infrastructure.persistence.mapper.CertificateMapper;
-import org.springframework.beans.BeanUtils;
+import com.example.certificate.infrastructure.converter.CertificateConverter;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.Resource;
@@ -21,27 +21,36 @@ public class CertificateRepositoryImpl implements CertificateRepository {
     @Resource
     private CertificateMapper certificateMapper;
     
+    @Resource
+    private CertificateConverter certificateConverter;
+    
     @Override
     public Optional<Certificate> findById(Long id) {
         CertificateEntity entity = certificateMapper.selectById(id);
-        return Optional.ofNullable(entity).map(this::toDomain);
+        return Optional.ofNullable(entity).map(certificateConverter::toDomain);
     }
     
     @Override
     public List<Certificate> findAll() {
         List<CertificateEntity> entities = certificateMapper.selectList(null);
-        return entities.stream().map(this::toDomain).collect(Collectors.toList());
+        return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
     }
     
     @Override
     public Certificate save(Certificate certificate) {
-        CertificateEntity entity = toEntity(certificate);
+        // 在保存前自动更新状态
+        certificate.updateStatus();
+        
+        CertificateEntity entity = certificateConverter.toEntity(certificate);
         if (certificate.getId() == null) {
+            entity.setCreatedAt(new Date());
+            entity.setUpdatedAt(new Date());
             certificateMapper.insert(entity);
         } else {
+            entity.setUpdatedAt(new Date());
             certificateMapper.updateById(entity);
         }
-        return toDomain(entity);
+        return certificateConverter.toDomain(entity);
     }
     
     @Override
@@ -54,7 +63,7 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         QueryWrapper<CertificateEntity> wrapper = new QueryWrapper<>();
         wrapper.eq("status", status.name());
         List<CertificateEntity> entities = certificateMapper.selectList(wrapper);
-        return entities.stream().map(this::toDomain).collect(Collectors.toList());
+        return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
     }
     
     @Override
@@ -62,20 +71,6 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         QueryWrapper<CertificateEntity> wrapper = new QueryWrapper<>();
         wrapper.lt("expiry_date", date);
         List<CertificateEntity> entities = certificateMapper.selectList(wrapper);
-        return entities.stream().map(this::toDomain).collect(Collectors.toList());
-    }
-    
-    private Certificate toDomain(CertificateEntity entity) {
-        Certificate certificate = new Certificate();
-        BeanUtils.copyProperties(entity, certificate);
-        certificate.setStatus(CertificateStatus.valueOf(entity.getStatus()));
-        return certificate;
-    }
-    
-    private CertificateEntity toEntity(Certificate certificate) {
-        CertificateEntity entity = new CertificateEntity();
-        BeanUtils.copyProperties(certificate, entity);
-        entity.setStatus(certificate.getStatus().name());
-        return entity;
+        return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
     }
 }
