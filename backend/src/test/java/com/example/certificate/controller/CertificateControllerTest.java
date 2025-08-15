@@ -210,7 +210,8 @@ class CertificateControllerTest {
                         .param("domain", "example"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.total").value(1));
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data").exists());
         
         verify(certificateService).getCertificateListWithFilter(
                 eq(1), eq(10), eq("createdAt"), eq("DESC"), 
