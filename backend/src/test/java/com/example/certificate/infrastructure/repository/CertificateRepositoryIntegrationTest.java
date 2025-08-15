@@ -84,8 +84,11 @@ class CertificateRepositoryIntegrationTest {
         Certificate certificate = createTestCertificate();
         Certificate saved = certificateRepository.save(certificate);
         
+        // 设置即将到期的日期（15天后）
+        Date soonExpiry = new Date(System.currentTimeMillis() + 15 * 24 * 60 * 60 * 1000L);
         saved.setName("更新后的证书");
-        saved.setStatus(CertificateStatus.EXPIRING_SOON);
+        saved.setExpiryDate(soonExpiry);
+        saved.updateStatus(); // 根据新的到期日期更新状态
         Certificate updated = certificateRepository.save(saved);
         
         assertEquals("更新后的证书", updated.getName());

@@ -73,13 +73,18 @@ class CertificateRepositoryTest {
     @Test
     @DisplayName("测试根据状态查找证书")
     void testFindByStatus() {
+        // 创建正常状态的证书（远期过期）
         Certificate normal = createTestCertificate();
-        normal.setStatus(CertificateStatus.NORMAL);
         normal.setDomain("normal.com");
+        // 正常状态会自动计算为NORMAL（因为是1年后过期）
         
+        // 创建已过期的证书
         Certificate expired = createTestCertificate();
-        expired.setStatus(CertificateStatus.EXPIRED);
         expired.setDomain("expired.com");
+        // 设置一个已过期的日期
+        Date pastDate = new Date(System.currentTimeMillis() - 24 * 60 * 60 * 1000L); // 昨天
+        expired.setExpiryDate(pastDate);
+        expired.updateStatus(); // 根据过期日期更新状态
         
         certificateRepository.save(normal);
         certificateRepository.save(expired);
@@ -134,8 +139,11 @@ class CertificateRepositoryTest {
         Certificate certificate = createTestCertificate();
         Certificate saved = certificateRepository.save(certificate);
         
+        // 设置即将到期的日期（15天后）
+        Date soonExpiry = new Date(System.currentTimeMillis() + 15 * 24 * 60 * 60 * 1000L);
         saved.setName("更新后的证书");
-        saved.setStatus(CertificateStatus.EXPIRING_SOON);
+        saved.setExpiryDate(soonExpiry);
+        saved.updateStatus(); // 根据新的到期日期更新状态
         Certificate updated = certificateRepository.save(saved);
         
         assertEquals("更新后的证书", updated.getName());

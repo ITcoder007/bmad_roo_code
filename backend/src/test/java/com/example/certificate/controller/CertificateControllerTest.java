@@ -198,8 +198,8 @@ class CertificateControllerTest {
         page.setRecords(Arrays.asList(testCertificateDto));
         
         when(certificateService.getCertificateListWithFilter(
-                anyInt(), anyInt(), anyString(), anyString(), 
-                anyString(), anyString(), anyString()))
+                eq(1), eq(10), eq("createdAt"), eq("DESC"), 
+                eq("NORMAL"), eq("example"), isNull()))
                 .thenReturn(page);
         
         // 执行和验证

@@ -51,12 +51,14 @@ class MonitoringLogRepositoryIntegrationTest {
     @Test
     @DisplayName("测试保存监控日志")
     void testSaveMonitoringLog() {
+        Date now = new Date();
         MonitoringLog log = MonitoringLog.builder()
                 .certificateId(certificateId)
                 .logType(LogType.MONITORING)
-                .logTime(new Date())
+                .logTime(now)
                 .message("证书检查完成")
                 .daysUntilExpiry(365)
+                .createdAt(now)
                 .build();
         
         MonitoringLog saved = monitoringLogRepository.save(log);
@@ -151,12 +153,14 @@ class MonitoringLogRepositoryIntegrationTest {
     }
     
     private MonitoringLog createTestLog() {
+        Date now = new Date();
         return MonitoringLog.builder()
                 .certificateId(certificateId)
                 .logType(LogType.MONITORING)
-                .logTime(new Date())
+                .logTime(now)
                 .message("测试日志消息")
                 .daysUntilExpiry(365)
+                .createdAt(now)
                 .build();
     }
 }
