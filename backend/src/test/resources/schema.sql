@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS certificate (
   created_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (id),
-  UNIQUE KEY uk_domain (domain)
+  CONSTRAINT uk_domain UNIQUE (domain)
 );
 
 CREATE TABLE IF NOT EXISTS monitoring_log (
