@@ -4,6 +4,9 @@ import router from './router'
 import pinia from './stores'
 import ElementPlus from './plugins/element-plus'
 
+// 导入全局样式
+import '@/assets/styles/global.scss'
+
 const app = createApp(App)
 
 app.use(pinia)

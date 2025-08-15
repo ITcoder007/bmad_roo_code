@@ -1,0 +1,194 @@
+// 颜色变量
+$colors: (
+  primary: #409eff,
+  success: #67c23a,
+  warning: #e6a23c,
+  danger: #f56c6c,
+  info: #909399,
+  white: #ffffff,
+  black: #000000,
+);
+
+// 文本颜色
+$text-colors: (
+  primary: #303133,
+  regular: #606266,
+  secondary: #909399,
+  placeholder: #c0c4cc,
+  disabled: #c0c4cc,
+);
+
+// 边框颜色
+$border-colors: (
+  darker: #cdd0d6,
+  dark: #d4d7de,
+  base: #dcdfe6,
+  light: #e4e7ed,
+  lighter: #ebeef5,
+  extra-light: #f2f6fc,
+);
+
+// 背景颜色
+$bg-colors: (
+  page: #f2f3f5,
+  base: #f5f7fa,
+  light: #fafafa,
+  white: #ffffff,
+);
+
+// 尺寸变量
+$sizes: (
+  large: 40px,
+  default: 32px,
+  small: 24px,
+  mini: 20px,
+);
+
+// 间距变量
+$spacing: (
+  xs: 4px,
+  sm: 8px,
+  md: 12px,
+  lg: 16px,
+  xl: 20px,
+  xxl: 24px,
+  xxxl: 32px,
+);
+
+// 圆角变量
+$border-radius: (
+  base: 4px,
+  small: 2px,
+  round: 20px,
+  circle: 50%,
+);
+
+// 阴影变量
+$box-shadow: (
+  base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04),
+  light: 0 2px 12px 0 rgba(0, 0, 0, 0.1),
+  dark: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08),
+);
+
+// 字体变量
+$font-family: (
+  base: '"Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif',
+  mono: 'Consolas, "Liberation Mono", Menlo, Courier, monospace',
+);
+
+$font-size: (
+  extra-large: 20px,
+  large: 18px,
+  medium: 16px,
+  base: 14px,
+  small: 13px,
+  extra-small: 12px,
+);
+
+$font-weight: (
+  light: 300,
+  normal: 400,
+  medium: 500,
+  bold: 700,
+);
+
+$line-height: (
+  base: 1.5,
+  small: 1.2,
+  large: 1.8,
+);
+
+// 层级变量
+$z-index: (
+  normal: 1,
+  top: 1000,
+  popper: 2000,
+  dialog: 3000,
+  message: 4000,
+);
+
+// 动画变量
+$transition: (
+  base: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+  fade: opacity 0.3s,
+  md-fade: transform 0.3s, opacity 0.3s,
+  border: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+  box-shadow: box-shadow 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
+  color: color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
+);
+
+// 断点变量
+$breakpoints: (
+  xs: 0,
+  sm: 768px,
+  md: 992px,
+  lg: 1200px,
+  xl: 1920px,
+);
+
+// 组件特定变量
+$header-height: 60px;
+$sidebar-width: 240px;
+$sidebar-collapsed-width: 64px;
+$footer-height: 50px;
+
+// 辅助函数
+@function color($key) {
+  @return map-get($colors, $key);
+}
+
+@function text-color($key) {
+  @return map-get($text-colors, $key);
+}
+
+@function border-color($key) {
+  @return map-get($border-colors, $key);
+}
+
+@function bg-color($key) {
+  @return map-get($bg-colors, $key);
+}
+
+@function size($key) {
+  @return map-get($sizes, $key);
+}
+
+@function spacing($key) {
+  @return map-get($spacing, $key);
+}
+
+@function radius($key) {
+  @return map-get($border-radius, $key);
+}
+
+@function shadow($key) {
+  @return map-get($box-shadow, $key);
+}
+
+@function font-family($key) {
+  @return map-get($font-family, $key);
+}
+
+@function font-size($key) {
+  @return map-get($font-size, $key);
+}
+
+@function font-weight($key) {
+  @return map-get($font-weight, $key);
+}
+
+@function line-height($key) {
+  @return map-get($line-height, $key);
+}
+
+@function z-index($key) {
+  @return map-get($z-index, $key);
+}
+
+@function transition($key) {
+  @return map-get($transition, $key);
+}
+
+@function breakpoint($key) {
+  @return map-get($breakpoints, $key);
+}
