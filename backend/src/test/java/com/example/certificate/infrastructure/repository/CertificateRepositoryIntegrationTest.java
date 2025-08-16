@@ -68,8 +68,9 @@ class CertificateRepositoryIntegrationTest {
     
     @Test
     @DisplayName("测试查找所有证书")
-    void testFindAll() {
+    void testFindAll() throws InterruptedException {
         certificateRepository.save(createTestCertificate());
+        Thread.sleep(1); // 确保时间戳不同
         certificateRepository.save(createTestCertificate());
         
         List<Certificate> certificates = certificateRepository.findAll();

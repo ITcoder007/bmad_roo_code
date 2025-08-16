@@ -76,8 +76,9 @@ class MonitoringLogTest {
     @Test
     @DisplayName("测试LogType枚举")
     void testLogType() {
-        assertEquals(3, LogType.values().length);
+        assertEquals(4, LogType.values().length);
         assertEquals(LogType.MONITORING, LogType.valueOf("MONITORING"));
+        assertEquals(LogType.STATUS_CHANGE, LogType.valueOf("STATUS_CHANGE"));
         assertEquals(LogType.ALERT_EMAIL, LogType.valueOf("ALERT_EMAIL"));
         assertEquals(LogType.ALERT_SMS, LogType.valueOf("ALERT_SMS"));
     }

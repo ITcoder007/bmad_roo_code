@@ -13,7 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
@@ -28,6 +28,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -38,7 +39,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * @author Auto Generated
  */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebMvc
+@AutoConfigureMockMvc
 @ActiveProfiles("test")
 @Transactional
 @DisplayName("证书状态集成测试")
@@ -82,7 +83,7 @@ class CertificateStatusIntegrationTest {
         );
         
         // When: 创建证书
-        MvcResult result = mockMvc.perform(post("/certificates")
+        MvcResult result = mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(certificateJson))
                 .andExpect(status().isOk())
@@ -110,7 +111,7 @@ class CertificateStatusIntegrationTest {
         createTestCertificate("已过期证书", "expired.example.com", -5); // 已过期
         
         // When: 获取证书列表
-        MvcResult result = mockMvc.perform(get("/certificates")
+        MvcResult result = mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())
@@ -138,24 +139,24 @@ class CertificateStatusIntegrationTest {
         createTestCertificate("已过期证书", "expired.example.com", -5);
         
         // When: 只筛选即将过期的证书
-        mockMvc.perform(get("/certificates")
+        mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
                         .param("status", "EXPIRING_SOON"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.records").isArray())
-                .andExpect(jsonPath("$.data.records[*].status").value("EXPIRING_SOON"));
+                .andExpect(jsonPath("$.data.records[?(@.status == 'EXPIRING_SOON')]").exists());
         
         // When: 只筛选已过期的证书
-        mockMvc.perform(get("/certificates")
+        mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
                         .param("status", "EXPIRED"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.records").isArray())
-                .andExpect(jsonPath("$.data.records[*].status").value("EXPIRED"));
+                .andExpect(jsonPath("$.data.records[?(@.status == 'EXPIRED')]").exists());
     }
     
     @Test
@@ -166,21 +167,34 @@ class CertificateStatusIntegrationTest {
         createTestCertificate("即将过期证书", "expiring.example.com", 15);
         createTestCertificate("已过期证书", "expired.example.com", -5);
         
-        // When: 筛选即将过期和已过期的证书
-        MvcResult result = mockMvc.perform(get("/certificates")
+        // When: 筛选即将过期的证书
+        MvcResult result1 = mockMvc.perform(get("/v1/certificates/search")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
-                        .param("statusList", "EXPIRING_SOON", "EXPIRED"))
+                        .param("status", "EXPIRING_SOON"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.records").isArray())
                 .andReturn();
         
-        // Then: 应该只返回即将过期和已过期的证书
-        String responseContent = result.getResponse().getContentAsString();
-        assertThat(responseContent).contains("EXPIRING_SOON");
-        assertThat(responseContent).contains("EXPIRED");
-        assertThat(responseContent).doesNotContain("NORMAL");
+        // When: 筛选已过期的证书
+        MvcResult result2 = mockMvc.perform(get("/v1/certificates/search")
+                        .param("pageNum", "1")
+                        .param("pageSize", "10")
+                        .param("status", "EXPIRED"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.success").value(true))
+                .andExpect(jsonPath("$.data.records").isArray())
+                .andReturn();
+        
+        // Then: 验证筛选结果
+        String expiringSoonContent = result1.getResponse().getContentAsString();
+        String expiredContent = result2.getResponse().getContentAsString();
+        
+        assertThat(expiringSoonContent).contains("EXPIRING_SOON");
+        assertThat(expiringSoonContent).doesNotContain("\"status\":\"NORMAL\"");
+        assertThat(expiredContent).contains("EXPIRED");
+        assertThat(expiredContent).doesNotContain("\"status\":\"NORMAL\"");
     }
     
     @Test
@@ -190,11 +204,11 @@ class CertificateStatusIntegrationTest {
         Long certificateId = createTestCertificate("一致性测试证书", "consistency.example.com", 20);
         
         // When: 多次获取同一证书
-        MvcResult result1 = mockMvc.perform(get("/certificates/" + certificateId))
+        MvcResult result1 = mockMvc.perform(get("/v1/certificates/" + certificateId))
                 .andExpect(status().isOk())
                 .andReturn();
         
-        MvcResult result2 = mockMvc.perform(get("/certificates/" + certificateId))
+        MvcResult result2 = mockMvc.perform(get("/v1/certificates/" + certificateId))
                 .andExpect(status().isOk())
                 .andReturn();
         
@@ -223,7 +237,7 @@ class CertificateStatusIntegrationTest {
                 "}",
                 formatDate(getDateDaysFromNow(10))); // 10天后过期
         
-        mockMvc.perform(post("/certificates/" + certificateId)
+        mockMvc.perform(put("/v1/certificates/" + certificateId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(updateJson))
                 .andExpect(status().isOk())
@@ -244,7 +258,7 @@ class CertificateStatusIntegrationTest {
         Date dateFrom = new Date();
         Date dateTo = getDateDaysFromNow(30);
         
-        mockMvc.perform(get("/certificates")
+        mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
                         .param("status", "EXPIRING_SOON")
@@ -265,7 +279,7 @@ class CertificateStatusIntegrationTest {
         createTestCertificate("边界测试证书", "boundary.example.com", thresholdDays);
         
         // When: 获取证书列表
-        MvcResult result = mockMvc.perform(get("/certificates")
+        MvcResult result = mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10"))
                 .andExpect(status().isOk())

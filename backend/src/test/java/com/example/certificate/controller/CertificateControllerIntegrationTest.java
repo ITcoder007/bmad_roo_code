@@ -50,7 +50,7 @@ class CertificateControllerIntegrationTest {
                 .build();
         
         // 执行和验证 - 应该因为真实的域名验证而失败
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest())
@@ -74,7 +74,7 @@ class CertificateControllerIntegrationTest {
                 .build();
         
         // 执行和验证 - 应该因为自定义日期范围验证而失败
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest())
@@ -98,7 +98,7 @@ class CertificateControllerIntegrationTest {
                 .build();
         
         // 创建第一个证书应该成功
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(firstDto)))
                 .andExpect(status().isOk())
@@ -115,7 +115,7 @@ class CertificateControllerIntegrationTest {
                 .build();
         
         // 应该因为真实的业务逻辑（域名重复检查）而失败
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(duplicateDto)))
                 .andExpect(status().isBadRequest())
@@ -139,7 +139,7 @@ class CertificateControllerIntegrationTest {
                 .certificateType("SSL")
                 .build();
         
-        String createResponse = mockMvc.perform(post("/api/v1/certificates")
+        String createResponse = mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(createDto)))
                 .andExpect(status().isOk())
@@ -154,13 +154,13 @@ class CertificateControllerIntegrationTest {
         // 简化起见，我们假设可以通过其他方式获取ID
         
         // 2. 查询证书列表，验证创建成功
-        mockMvc.perform(get("/api/v1/certificates"))
+        mockMvc.perform(get("/v1/certificates"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.total").value(org.hamcrest.Matchers.greaterThan(0)));
         
         // 3. 搜索特定域名
-        mockMvc.perform(get("/api/v1/certificates/search")
+        mockMvc.perform(get("/v1/certificates/search")
                         .param("domain", "crud-test"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true));

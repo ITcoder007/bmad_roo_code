@@ -19,6 +19,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 
 /**
  * 监控服务功能验证测试
@@ -44,7 +45,7 @@ class MonitoringServiceFunctionalTest {
     
     @BeforeEach
     void setUp() {
-        when(certificateStatusConfig.getExpiringSoonDays()).thenReturn(30);
+        lenient().when(certificateStatusConfig.getExpiringSoonDays()).thenReturn(30);
         
         monitoringService = new MonitoringServiceImpl(
                 certificateRepository, 

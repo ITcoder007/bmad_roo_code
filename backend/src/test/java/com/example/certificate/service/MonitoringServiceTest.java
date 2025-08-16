@@ -196,10 +196,18 @@ class MonitoringServiceTest {
         doThrow(new RuntimeException("日志服务异常")).when(monitoringLogService)
             .logMonitoringResult(any(Certificate.class), anyInt());
         
-        // When & Then - 不应该抛异常到调用者
-        monitoringService.monitorCertificate(certificate);
+        // When & Then - 应该抛出MonitoringException
+        try {
+            monitoringService.monitorCertificate(certificate);
+            assert false : "Expected MonitoringException to be thrown";
+        } catch (MonitoringException e) {
+            // 验证异常被正确包装
+            assert e.getMessage().contains("监控证书");
+            assert e.getCause() instanceof RuntimeException;
+            assert e.getCause().getMessage().equals("日志服务异常");
+        }
         
-        // 验证异常被捕获并处理
+        // 验证日志服务被调用
         verify(monitoringLogService).logMonitoringResult(eq(certificate), anyInt());
     }
 

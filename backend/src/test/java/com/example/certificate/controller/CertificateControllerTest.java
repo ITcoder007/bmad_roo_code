@@ -88,7 +88,7 @@ class CertificateControllerTest {
                 .thenReturn(testCertificateDto);
         
         // 执行和验证
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateDto)))
                 .andExpect(status().isOk())
@@ -111,7 +111,7 @@ class CertificateControllerTest {
                 .build();
         
         // 执行和验证
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalidDto)))
                 .andExpect(status().isBadRequest());
@@ -126,7 +126,7 @@ class CertificateControllerTest {
                 .thenThrow(BusinessException.of(ErrorCode.CERTIFICATE_DOMAIN_EXISTS));
         
         // 执行和验证
-        mockMvc.perform(post("/api/v1/certificates")
+        mockMvc.perform(post("/v1/certificates")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testCreateDto)))
                 .andExpect(status().isBadRequest())
@@ -142,7 +142,7 @@ class CertificateControllerTest {
         when(certificateService.getCertificateById(1L)).thenReturn(testCertificateDto);
         
         // 执行和验证
-        mockMvc.perform(get("/api/v1/certificates/1"))
+        mockMvc.perform(get("/v1/certificates/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.data.id").value(1))
@@ -158,7 +158,7 @@ class CertificateControllerTest {
                 .thenThrow(BusinessException.of(ErrorCode.CERTIFICATE_NOT_FOUND));
         
         // 执行和验证
-        mockMvc.perform(get("/api/v1/certificates/999"))
+        mockMvc.perform(get("/v1/certificates/999"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value(10001));
@@ -177,7 +177,7 @@ class CertificateControllerTest {
                 .thenReturn(page);
         
         // 执行和验证
-        mockMvc.perform(get("/api/v1/certificates")
+        mockMvc.perform(get("/v1/certificates")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
                         .param("sortBy", "createdAt")
@@ -203,7 +203,7 @@ class CertificateControllerTest {
                 .thenReturn(page);
         
         // 执行和验证
-        mockMvc.perform(get("/api/v1/certificates/search")
+        mockMvc.perform(get("/v1/certificates/search")
                         .param("pageNum", "1")
                         .param("pageSize", "10")
                         .param("status", "NORMAL")
@@ -238,7 +238,7 @@ class CertificateControllerTest {
                 .thenReturn(updatedDto);
         
         // 执行和验证
-        mockMvc.perform(put("/api/v1/certificates/1")
+        mockMvc.perform(put("/v1/certificates/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUpdateDto)))
                 .andExpect(status().isOk())
@@ -256,7 +256,7 @@ class CertificateControllerTest {
                 .thenThrow(BusinessException.of(ErrorCode.CERTIFICATE_NOT_FOUND));
         
         // 执行和验证
-        mockMvc.perform(put("/api/v1/certificates/999")
+        mockMvc.perform(put("/v1/certificates/999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testUpdateDto)))
                 .andExpect(status().isBadRequest())
@@ -272,7 +272,7 @@ class CertificateControllerTest {
         doNothing().when(certificateService).deleteCertificate(1L);
         
         // 执行和验证
-        mockMvc.perform(delete("/api/v1/certificates/1"))
+        mockMvc.perform(delete("/v1/certificates/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value(true))
                 .andExpect(jsonPath("$.message").value("证书删除成功"));
@@ -287,7 +287,7 @@ class CertificateControllerTest {
                 .when(certificateService).deleteCertificate(999L);
         
         // 执行和验证
-        mockMvc.perform(delete("/api/v1/certificates/999"))
+        mockMvc.perform(delete("/v1/certificates/999"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.code").value(10001));
