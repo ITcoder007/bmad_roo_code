@@ -18,7 +18,7 @@ import javax.validation.Valid;
  * 提供证书管理的 REST API 接口
  */
 @RestController
-@RequestMapping("/api/v1/certificates")
+@RequestMapping("/v1/certificates")
 public class CertificateController {
     
     private static final Logger logger = LoggerFactory.getLogger(CertificateController.class);
