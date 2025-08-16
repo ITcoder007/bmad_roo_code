@@ -2,6 +2,15 @@
   <div class="login-container">
     <el-card class="login-card">
       <h2>证书生命周期管理系统</h2>
+      <el-alert
+        type="info"
+        :closable="false"
+        style="margin-bottom: 20px"
+      >
+        <template #title>
+          默认账号：admin / admin123
+        </template>
+      </el-alert>
       <el-form
         :model="loginForm"
         @submit.prevent="handleLogin"
@@ -19,15 +28,17 @@
             type="password"
             placeholder="密码"
             prefix-icon="Lock"
+            @keyup.enter="handleLogin"
           />
         </el-form-item>
         <el-form-item>
           <el-button
             type="primary"
             style="width: 100%"
+            :loading="loading"
             @click="handleLogin"
           >
-            登录
+            {{ loading ? '登录中...' : '登录' }}
           </el-button>
         </el-form-item>
       </el-form>
@@ -36,7 +47,7 @@
 </template>
 
 <script>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 
@@ -44,24 +55,52 @@ export default {
   name: 'Login',
   setup() {
     const router = useRouter()
+    const loading = ref(false)
     const loginForm = reactive({
-      username: '',
+      username: 'admin',  // 默认填充用户名
       password: ''
     })
 
-    const handleLogin = () => {
+    const handleLogin = async () => {
       if (!loginForm.username || !loginForm.password) {
         ElMessage.error('请输入用户名和密码')
         return
       }
       
-      localStorage.setItem('token', 'mock-token')
-      ElMessage.success('登录成功')
-      router.push('/dashboard')
+      loading.value = true
+      try {
+        // 由于后端使用 Basic Auth，我们将凭据编码存储
+        const credentials = btoa(`${loginForm.username}:${loginForm.password}`)
+        
+        // 测试认证是否有效 - 尝试获取证书列表
+        const response = await fetch('/api/api/v1/certificates?page=1&size=1', {
+          headers: {
+            'Authorization': `Basic ${credentials}`
+          }
+        })
+        
+        if (response.ok) {
+          // 认证成功，存储凭据
+          localStorage.setItem('token', credentials)
+          localStorage.setItem('username', loginForm.username)
+          ElMessage.success('登录成功')
+          router.push('/dashboard')
+        } else if (response.status === 401) {
+          ElMessage.error('用户名或密码错误')
+        } else {
+          ElMessage.error('登录失败，请稍后重试')
+        }
+      } catch (error) {
+        console.error('Login error:', error)
+        ElMessage.error('网络错误，请检查服务器连接')
+      } finally {
+        loading.value = false
+      }
     }
 
     return {
       loginForm,
+      loading,
       handleLogin
     }
   }

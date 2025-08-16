@@ -18,10 +18,11 @@ const request = axios.create({
 // 请求拦截器
 request.interceptors.request.use(
   (config) => {
-    // 添加认证令牌
+    // 添加认证令牌 - 使用 Basic Auth
     const token = localStorage.getItem('token')
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+      // token 已经是 base64 编码的凭据
+      config.headers.Authorization = `Basic ${token}`
     }
     
     // 添加请求ID用于追踪
