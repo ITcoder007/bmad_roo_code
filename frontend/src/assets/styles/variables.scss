@@ -65,9 +65,9 @@ $border-radius: (
 
 // 阴影变量
 $box-shadow: (
-  base: 0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04),
+  base: (0 2px 4px rgba(0, 0, 0, 0.12), 0 0 6px rgba(0, 0, 0, 0.04)),
   light: 0 2px 12px 0 rgba(0, 0, 0, 0.1),
-  dark: 0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08),
+  dark: (0 4px 8px rgba(0, 0, 0, 0.12), 0 2px 4px rgba(0, 0, 0, 0.08))
 );
 
 // 字体变量
@@ -111,7 +111,7 @@ $z-index: (
 $transition: (
   base: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
   fade: opacity 0.3s,
-  md-fade: transform 0.3s, opacity 0.3s,
+  md-fade: (transform 0.3s, opacity 0.3s),
   border: border-color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
   box-shadow: box-shadow 0.3s cubic-bezier(0.645, 0.045, 0.355, 1),
   color: color 0.2s cubic-bezier(0.645, 0.045, 0.355, 1),
