@@ -3,15 +3,8 @@ import DefaultLayout from '@/layouts/DefaultLayout.vue'
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/auth/Login.vue'),
-    meta: { title: '登录', requiresAuth: false }
-  },
-  {
     path: '/',
     component: DefaultLayout,
-    meta: { requiresAuth: true },
     children: [
       {
         path: '',
@@ -98,35 +91,12 @@ const router = createRouter({
   routes
 })
 
-// 导入路由守卫
-import { 
-  authGuard, 
-  permissionGuard, 
-  titleGuard, 
-  progressGuard,
-  progressDoneGuard 
-} from './guards'
-
-// 全局前置守卫
+// 简单的标题守卫
 router.beforeEach((to, from, next) => {
-  progressGuard(to, from, next)
-})
-
-router.beforeEach((to, from, next) => {
-  titleGuard(to, from, next)
-})
-
-router.beforeEach((to, from, next) => {
-  authGuard(to, from, next)
-})
-
-router.beforeEach((to, from, next) => {
-  permissionGuard(to, from, next)
-})
-
-// 全局后置守卫
-router.afterEach((to, from) => {
-  progressDoneGuard(to, from)
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - 证书管理系统`
+  }
+  next()
 })
 
 export default router
