@@ -172,7 +172,8 @@ const loadCertificateList = async () => {
     }
     
     const result = await getCertificateList(params)
-    certificateList.value = result.data || []
+    // 修复：后端返回的数据在 records 字段中
+    certificateList.value = result.records || []
     pagination.total = result.total || 0
   } catch (error) {
     console.error('获取证书列表失败:', error)
