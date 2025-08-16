@@ -7,7 +7,6 @@
       v-bind="$attrs"
       @selection-change="handleSelectionChange"
       @sort-change="handleSortChange"
-      v-on="$listeners"
     >
       <slot />
     </el-table>
