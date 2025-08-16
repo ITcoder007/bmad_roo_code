@@ -44,8 +44,8 @@ fi
 
 # 测试后端API端点
 echo ""
-echo "🔍 测试后端API端点 (http://localhost:8080/api/certificates)..."
-HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/certificates 2>/dev/null)
+echo "🔍 测试后端API端点 (http://localhost:8080/api/api/v1/certificates)..."
+HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080/api/api/v1/certificates 2>/dev/null)
 
 if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "401" ] || [ "$HTTP_CODE" = "403" ]; then
     echo -e "${GREEN}✅ API端点可访问${NC}"

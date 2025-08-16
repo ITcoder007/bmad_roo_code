@@ -53,7 +53,7 @@ const mockConsole = {
 global.console = mockConsole
 
 // Mock import.meta.env
-vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080/api')
+vi.stubEnv('VITE_API_BASE_URL', 'http://localhost:8080/api/api/v1')
 vi.stubEnv('MODE', 'test')
 
 describe('Request Utils', () => {

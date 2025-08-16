@@ -21,6 +21,16 @@ npm run dev:backend         # 仅启动后端 (http://localhost:8080/api)
 ./scripts/test-startup.sh   # 测试服务启动并验证健康状态
 ```
 
+### API 访问
+```bash
+# 默认认证信息
+用户名: admin
+密码: admin123
+
+# API 端点示例
+curl -u admin:admin123 http://localhost:8080/api/api/v1/certificates
+```
+
 ### 构建命令
 ```bash
 npm run build              # 构建前后端生产版本

@@ -1,138 +1,96 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
-
-# Testing
-coverage/
-*.lcov
-.nyc_output
-
-# Production
-/build
-/dist
-target/
-*.jar
-*.war
-*.ear
-
-# Misc
-.DS_Store
-#.env
-#.env.local
-#.env.development.local
-#.env.test.local
-#.env.production.local
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
-# IDE
+# === IDEs ===
 .idea/
 *.iml
 *.iws
-*.ipr
 .vscode/
-*.swp
-*.swo
-*~
+# Optional (Eclipse)
 .project
 .classpath
 .settings/
 
-# Python
-.venv/
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-
-# Java
-*.class
-*.log
-*.ctxt
-.mtj.tmp/
-*.jar
-*.war
-*.nar
-*.ear
-*.zip
-*.tar.gz
-*.rar
-hs_err_pid*
-
-# Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# OS
-.DS_Store
-Thumbs.db
-*.bak
-
-# Temporary files
-*.tmp
-*.temp
-.tmp/
-.temp/
-
-# Build outputs
-dist/
-build/
+# === Build outputs ===
+**/target/
 out/
 
-# Local configuration
-#.env
-#.env.*
-#!.env.example
+# === JVM crash dumps / memory ===
+hs_err_pid*
+replay_pid*
+*.hprof
 
-# Database
-#*.db
-#*.sqlite
-#*.sqlite3
+# === Logs & PIDs ===
+*.log
+*.out
+*.pid
 
-# Package files
-*.7z
-*.dmg
-*.gz
-*.iso
+# === OS files ===
+**/.DS_Store
+Thumbs.db
+
+# === Environment / Secrets ===
+.env
+.env.*
+!.env.example
+!.env.sample
+# Spring Boot local overrides (keep examples under version control if needed)
+application-local.properties
+application-local.yml
+application-local.yaml
+# If and only if you actually use per-developer local props:
+# *.properties.local
+
+# === Maven Wrapper (KEEP IN VCS) ===
+# Do NOT ignore the wrapper — it should be committed for reproducible builds.
+!.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+!.mvn/jvm.config
+!.mvn/maven.config
+# This file is generated during builds and can be ignored:
+.mvn/timing.properties
+
+# === Dependencies / Caches ===
+# Node
+**/node_modules/
+
+# === Packaged artifacts (generated; don't commit) ===
+*.class
 *.jar
-*.rar
-*.tar
-*.zip
+*.war
+*.ear
 
-# Vue/Vite specific
-dist-ssr
-*.local
-.vite/
+# === Editor temp files ===
+*.swp
+*.swo
+*.tmp
+*.temp
 
-# Editor directories and files
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# === Frontend build/test (optional) ===
+**/dist/
+**/build/
+**/.vite/
+**/.parcel-cache/
+**/.cache/
+**/.turbo/
+**/.eslintcache
+**/.stylelintcache
+**/coverage/
+**/cypress/screenshots/
+**/cypress/videos/
+**/cypress/downloads/
+**/playwright-report/
+**/test-results/
+**/blob-report/
+
+# === Spring Boot Devtools (local only) ===
+spring-boot-devtools.properties
+spring-boot-devtools.yml
+spring-boot-devtools.yaml
+
+# === Maven misc ===
+dependency-reduced-pom.xml
+
+# === Lockfiles (commit these; ensure they are NOT ignored) ===
+!yarn.lock
+!pnpm-lock.yaml
+
 /package-lock.json
 /frontend/package-lock.json

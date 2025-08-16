@@ -108,9 +108,26 @@ npm run dev:backend
 ### 5. 访问应用
 
 - 前端应用：http://localhost:5173
-- 后端 API：http://localhost:8080/api
+- 后端 API 基础路径：http://localhost:8080/api
 - Swagger 文档：http://localhost:8080/api/swagger-ui.html
 - 健康检查：http://localhost:8080/api/actuator/health
+
+### 6. API 访问示例
+
+默认登录凭据：
+- 用户名：`admin`
+- 密码：`admin123`
+
+API 端点示例：
+```bash
+# 获取证书列表（需要认证）
+curl -u admin:admin123 http://localhost:8080/api/api/v1/certificates
+
+# 通过前端代理访问
+curl -u admin:admin123 "http://localhost:5173/api/api/v1/certificates?page=1&size=20"
+```
+
+注意：API 实际路径为 `/api/api/v1/certificates`（第一个 `/api` 是 context-path，第二个是路由前缀）
 
 ## 项目结构
 
