@@ -1,5 +1,6 @@
 /**
  * 证书管理相关 API
+ * 包含日期格式自动转换
  */
 import { http } from '@/utils/request'
 
@@ -40,7 +41,13 @@ export function getCertificateById(id) {
  * @returns {Promise} 创建结果
  */
 export function createCertificate(data) {
-  return http.post(API_PREFIX, data)
+  // 转换日期格式为 ISO 8601
+  const formattedData = {
+    ...data,
+    issueDate: data.issueDate ? new Date(data.issueDate).toISOString() : null,
+    expiryDate: data.expiryDate ? new Date(data.expiryDate).toISOString() : null
+  }
+  return http.post(API_PREFIX, formattedData)
 }
 
 /**
@@ -50,7 +57,13 @@ export function createCertificate(data) {
  * @returns {Promise} 更新结果
  */
 export function updateCertificate(id, data) {
-  return http.put(`${API_PREFIX}/${id}`, data)
+  // 转换日期格式为 ISO 8601
+  const formattedData = {
+    ...data,
+    issueDate: data.issueDate ? new Date(data.issueDate).toISOString() : null,
+    expiryDate: data.expiryDate ? new Date(data.expiryDate).toISOString() : null
+  }
+  return http.put(`${API_PREFIX}/${id}`, formattedData)
 }
 
 /**
