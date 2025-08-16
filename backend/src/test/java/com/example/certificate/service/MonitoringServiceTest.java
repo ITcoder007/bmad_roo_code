@@ -1,5 +1,6 @@
 package com.example.certificate.service;
 
+import com.example.certificate.common.exception.MonitoringException;
 import com.example.certificate.config.CertificateStatusConfig;
 import com.example.certificate.domain.model.Certificate;
 import com.example.certificate.domain.model.CertificateStatus;
@@ -18,6 +19,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.lenient;
@@ -37,6 +41,9 @@ class MonitoringServiceTest {
     
     @Mock
     private CertificateStatusConfig certificateStatusConfig;
+    
+    @Mock
+    private MonitoringLogService monitoringLogService;
     
     @InjectMocks
     private MonitoringServiceImpl monitoringService;
@@ -77,6 +84,7 @@ class MonitoringServiceTest {
         // Then - 验证结果
         verify(certificateRepository).findAll();
         verify(certificateService, times(3)).updateCertificateStatus(any(Long.class), any(CertificateStatus.class));
+        verify(monitoringLogService, times(3)).logMonitoringResult(any(Certificate.class), anyInt());
     }
 
     @Test
@@ -90,6 +98,8 @@ class MonitoringServiceTest {
         
         // Then - 验证状态更新被调用
         verify(certificateService).updateCertificateStatus(certificate.getId(), CertificateStatus.EXPIRING_SOON);
+        verify(monitoringLogService).logMonitoringResult(eq(certificate), anyInt());
+        verify(monitoringLogService).logStatusChange(eq(certificate), eq(CertificateStatus.NORMAL), eq(CertificateStatus.EXPIRING_SOON));
     }
 
     @Test
@@ -154,6 +164,43 @@ class MonitoringServiceTest {
         
         // Then - 应该返回EXPIRING_SOON（因为30 <= 30）
         assert status == CertificateStatus.EXPIRING_SOON;
+    }
+    
+    @Test
+    void should_continue_monitoring_other_certificates_when_one_fails() {
+        // Given - 三个证书，使用简单的设置
+        List<Certificate> certificates = Arrays.asList(
+            normalCertificate, 
+            expiringSoonCertificate, 
+            expiredCertificate
+        );
+        when(certificateRepository.findAll()).thenReturn(certificates);
+        
+        // 模拟日志服务在特定证书上抛异常（使用ArgumentMatchers.argThat）
+        doThrow(new RuntimeException("测试异常")).when(monitoringLogService)
+            .logMonitoringResult(argThat(cert -> cert.getName().equals("Test Certificate 20")), anyInt());
+        
+        // When - 执行监控，应该继续处理其他证书
+        monitoringService.monitorAllCertificates();
+        
+        // Then - 验证所有证书都被尝试监控（总共3次调用）
+        verify(monitoringLogService, times(3)).logMonitoringResult(any(Certificate.class), anyInt());
+    }
+    
+    @Test
+    void should_handle_monitoring_service_exception_gracefully() {
+        // Given - 证书列表
+        Certificate certificate = createCertificateExpiringIn(20);
+        
+        // 模拟日志服务抛异常
+        doThrow(new RuntimeException("日志服务异常")).when(monitoringLogService)
+            .logMonitoringResult(any(Certificate.class), anyInt());
+        
+        // When & Then - 不应该抛异常到调用者
+        monitoringService.monitorCertificate(certificate);
+        
+        // 验证异常被捕获并处理
+        verify(monitoringLogService).logMonitoringResult(eq(certificate), anyInt());
     }
 
     private Certificate createCertificateExpiringIn(int days) {
