@@ -5,6 +5,7 @@ import com.example.certificate.common.exception.BusinessException;
 import com.example.certificate.common.exception.ErrorCode;
 import com.example.certificate.controller.request.CertificateQueryRequest;
 import com.example.certificate.domain.model.Certificate;
+import com.example.certificate.domain.model.CertificateStatus;
 import com.example.certificate.domain.repository.CertificateRepository;
 import com.example.certificate.service.CertificateService;
 import com.example.certificate.service.CertificateStatusService;
@@ -236,6 +237,29 @@ public class CertificateServiceImpl implements CertificateService {
         
         logger.debug("查询完成，返回 {} 条记录", dtoPage.getRecords().size());
         return dtoPage;
+    }
+    
+    @Override
+    public void updateCertificateStatus(Long id, CertificateStatus status) {
+        logger.info("更新证书状态，ID: {}, 新状态: {}", id, status);
+        
+        // 获取现有证书
+        Optional<Certificate> existingOpt = certificateRepository.findById(id);
+        if (!existingOpt.isPresent()) {
+            logger.warn("证书不存在，ID: {}", id);
+            throw BusinessException.of(ErrorCode.CERTIFICATE_NOT_FOUND);
+        }
+        
+        try {
+            Certificate certificate = existingOpt.get();
+            certificate.setStatus(status);
+            certificate.setUpdatedAt(new Date());
+            certificateRepository.save(certificate);
+            logger.info("证书状态更新成功，ID: {}, 新状态: {}", id, status);
+        } catch (Exception e) {
+            logger.error("证书状态更新失败", e);
+            throw BusinessException.of(ErrorCode.CERTIFICATE_UPDATE_FAILED, e.getMessage());
+        }
     }
     
     /**

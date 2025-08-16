@@ -2,6 +2,7 @@ package com.example.certificate.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.certificate.controller.request.CertificateQueryRequest;
+import com.example.certificate.domain.model.CertificateStatus;
 import com.example.certificate.service.dto.CertificateCreateDto;
 import com.example.certificate.service.dto.CertificateDto;
 import com.example.certificate.service.dto.CertificateUpdateDto;
@@ -85,4 +86,11 @@ public interface CertificateService {
      * @return 分页的证书列表
      */
     Page<CertificateDto> getCertificateListWithQuery(CertificateQueryRequest queryRequest);
+    
+    /**
+     * 更新证书状态
+     * @param id 证书ID
+     * @param status 新的证书状态
+     */
+    void updateCertificateStatus(Long id, CertificateStatus status);
 }
