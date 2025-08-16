@@ -17,9 +17,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 npm run dev                 # 同时启动前后端开发服务器
 npm run dev:frontend        # 仅启动前端 (http://localhost:5173)
-npm run dev:backend         # 仅启动后端 (http://localhost:8080/api)
+npm run dev:backend         # 仅启动后端 (cd backend && mvn spring-boot:run)
 ./scripts/test-startup.sh   # 测试服务启动并验证健康状态
 ```
+
+后端实际访问地址：
+- 基础路径：http://localhost:8080/api
+- API 端点：http://localhost:8080/api/api/v1/certificates
+- Swagger UI：http://localhost:8080/api/swagger-ui.html
 
 ### API 访问
 ```bash
@@ -126,9 +131,14 @@ npm run lint       # 代码检查
 ```bash
 cd backend
 mvn clean install   # 构建项目
-mvn spring-boot:run # 运行应用
+mvn spring-boot:run # 运行应用（服务运行在 http://localhost:8080/api）
 mvn test           # 运行测试
 mvn package        # 打包成 JAR
+
+# 或者使用根目录的 npm 脚本
+npm run dev:backend  # 启动后端开发服务器
+npm run test:backend # 运行后端测试
+npm run build:backend # 构建后端项目
 ```
 
 ### 数据库

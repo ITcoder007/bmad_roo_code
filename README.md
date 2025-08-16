@@ -101,8 +101,8 @@ npm run dev
 # 启动前端 (http://localhost:5173)
 npm run dev:frontend
 
-# 启动后端 (http://localhost:8080)
-npm run dev:backend
+# 启动后端 (http://localhost:8080/api)
+npm run dev:backend  # 实际执行: cd backend && mvn spring-boot:run
 ```
 
 ### 5. 访问应用
