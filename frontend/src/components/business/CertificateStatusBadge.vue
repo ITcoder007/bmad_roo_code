@@ -24,7 +24,7 @@
 <script setup>
 import { computed } from 'vue'
 import { 
-  CheckCircle, 
+  Check, 
   WarningFilled, 
   CircleCloseFilled 
 } from '@element-plus/icons-vue'
@@ -57,7 +57,7 @@ const STATUS_CONFIG_MAP = {
   [CERTIFICATE_STATUS.NORMAL]: {
     type: 'success',
     effect: 'dark',
-    icon: CheckCircle,
+    icon: Check,
     text: '正常',
     color: '#67C23A'
   },
@@ -82,7 +82,7 @@ const statusConfig = computed(() => {
   return STATUS_CONFIG_MAP[props.status] || {
     type: 'info',
     effect: 'plain',
-    icon: CheckCircle,
+    icon: Check,
     text: '未知状态',
     color: '#909399'
   }
