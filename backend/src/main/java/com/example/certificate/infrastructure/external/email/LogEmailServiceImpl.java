@@ -19,6 +19,11 @@ import java.util.List;
 /**
  * 日志模式邮件服务实现
  * MVP阶段通过日志记录来模拟邮件发送功能
+ * 
+ * 设计原则：
+ * 1. 单一职责 - 仅负责日志记录，格式化逻辑分离
+ * 2. 错误隔离 - 统一的异常处理策略
+ * 3. 性能优化 - 避免重复的字符串操作
  */
 @Service("logEmailService")
 @Primary
@@ -29,36 +34,39 @@ public class LogEmailServiceImpl implements EmailService {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     private final MonitoringLogService monitoringLogService;
+    private final EmailLogFormatter logFormatter;
     
     public LogEmailServiceImpl(MonitoringLogService monitoringLogService) {
         this.monitoringLogService = monitoringLogService;
+        this.logFormatter = new EmailLogFormatter();
     }
     
     @Override
     public EmailResult sendExpiryAlertEmail(Certificate certificate, int daysUntilExpiry, String recipientEmail) {
         try {
-            // 格式化邮件预警日志信息
-            String logMessage = formatExpiryAlertMessage(certificate, daysUntilExpiry, recipientEmail);
-            log.info("📧 邮件预警发送 - {}", logMessage);
-            
-            // 记录详细的预警信息到控制台
-            logCertificateDetails(certificate, daysUntilExpiry, recipientEmail);
-            
-            // 记录监控日志到数据库
-            monitoringLogService.logEmailAlert(certificate, daysUntilExpiry, recipientEmail);
-            
-            // 返回成功结果
-            EmailResult result = EmailResult.success(EmailConstants.EMAIL_SUCCESS_MESSAGE_LOG_MODE, recipientEmail);
-            log.debug("邮件预警记录成功: {}", result);
-            
-            return result;
+            return executeWithErrorHandling(() -> {
+                // 格式化并记录预警信息
+                String logMessage = logFormatter.formatExpiryAlert(certificate, daysUntilExpiry, recipientEmail);
+                log.info("📧 邮件预警发送 - {}", logMessage);
+                
+                // 记录详细信息
+                String details = logFormatter.formatCertificateDetails(certificate, daysUntilExpiry, recipientEmail);
+                log.info("  {}", details);
+                
+                // 记录监控日志到数据库
+                monitoringLogService.logEmailAlert(certificate, daysUntilExpiry, recipientEmail);
+                
+                EmailResult result = EmailResult.success(EmailConstants.EMAIL_SUCCESS_MESSAGE_LOG_MODE, recipientEmail);
+                log.debug("邮件预警记录成功: {}", result);
+                
+                return result;
+            }, certificate.getName(), recipientEmail, EmailConstants.ERROR_CODE_LOG_EMAIL_FAILED);
             
         } catch (Exception e) {
-            log.error("记录邮件预警时发生异常 - 证书: {}, 收件人: {}, 错误: {}", 
-                     certificate.getName(), recipientEmail, e.getMessage(), e);
-            
+            // 这里不应该到达，但保留作为最后的防线
+            log.error("意外的异常逃脱了错误处理: {}", e.getMessage(), e);
             return EmailResult.failure(
-                "邮件预警记录失败: " + e.getMessage(),
+                "系统内部错误: " + e.getMessage(),
                 EmailConstants.ERROR_CODE_LOG_EMAIL_FAILED,
                 recipientEmail
             );
@@ -70,8 +78,8 @@ public class LogEmailServiceImpl implements EmailService {
                                        List<Certificate> expiredCertificates, 
                                        String recipientEmail) {
         try {
-            String summaryMessage = formatDailySummaryMessage(
-                expiringSoonCertificates, expiredCertificates, recipientEmail);
+                String summaryMessage = logFormatter.formatDailySummary(
+                    expiringSoonCertificates, expiredCertificates, recipientEmail);
             log.info("📧 每日摘要邮件 - {}", summaryMessage);
             
             // 记录即将过期的证书详情
@@ -152,67 +160,63 @@ public class LogEmailServiceImpl implements EmailService {
     }
     
     /**
-     * 格式化证书过期预警消息
+     * 统一的错误处理模板方法
+     * 封装通用的异常处理逻辑，减少代码重复
      */
-    private String formatExpiryAlertMessage(Certificate certificate, int daysUntilExpiry, String recipient) {
-        String alertType = getAlertTypeByDays(daysUntilExpiry);
-        return String.format(
-            EmailConstants.FORMAT_EXPIRY_ALERT,
-            recipient,
-            certificate.getName(),
-            certificate.getDomain(),
-            DATE_FORMAT.format(certificate.getExpiryDate()),
-            daysUntilExpiry,
-            alertType
-        );
-    }
-    
-    /**
-     * 格式化每日摘要消息
-     */
-    private String formatDailySummaryMessage(List<Certificate> expiringSoon, 
-                                           List<Certificate> expired, 
-                                           String recipient) {
-        return String.format(
-            EmailConstants.FORMAT_DAILY_SUMMARY,
-            recipient,
-            expiringSoon.size(),
-            expired.size(),
-            DATE_FORMAT.format(new Date())
-        );
-    }
-    
-    /**
-     * 记录证书详细信息
-     */
-    private void logCertificateDetails(Certificate certificate, int daysUntilExpiry, String recipient) {
-        log.info("  证书详情:");
-        log.info("    {} 证书名称: {}", EmailConstants.LOG_PREFIX_CERTIFICATE, certificate.getName());
-        log.info("    {} 域名: {}", EmailConstants.LOG_PREFIX_DOMAIN, certificate.getDomain());
-        log.info("    {} 颁发日期: {}", EmailConstants.LOG_PREFIX_DATE, DATE_FORMAT.format(certificate.getIssueDate()));
-        log.info("    {} 到期日期: {}", EmailConstants.LOG_PREFIX_TIME, DATE_FORMAT.format(certificate.getExpiryDate()));
-        log.info("    {} 证书状态: {}", EmailConstants.LOG_PREFIX_STATUS, certificate.getStatus());
-        log.info("    {} 剩余天数: {}天", EmailConstants.LOG_PREFIX_DAYS, daysUntilExpiry);
-        log.info("    {} 收件人: {}", EmailConstants.LOG_PREFIX_RECIPIENT, recipient);
-        log.info("    {} 预警类型: {}", EmailConstants.LOG_PREFIX_ALERT_TYPE, getAlertTypeByDays(daysUntilExpiry));
-    }
-    
-    /**
-     * 根据剩余天数确定预警类型
-     */
-    private String getAlertTypeByDays(int daysUntilExpiry) {
-        if (daysUntilExpiry <= 0) {
-            return EmailConstants.ALERT_TYPE_EXPIRED;
-        } else if (daysUntilExpiry <= EmailConstants.EXPIRY_THRESHOLD_1_DAY) {
-            return EmailConstants.ALERT_TYPE_1_DAY;
-        } else if (daysUntilExpiry <= EmailConstants.EXPIRY_THRESHOLD_7_DAY) {
-            return EmailConstants.ALERT_TYPE_7_DAY;
-        } else if (daysUntilExpiry <= EmailConstants.EXPIRY_THRESHOLD_15_DAY) {
-            return EmailConstants.ALERT_TYPE_15_DAY;
-        } else if (daysUntilExpiry <= EmailConstants.EXPIRY_THRESHOLD_30_DAY) {
-            return EmailConstants.ALERT_TYPE_30_DAY;
-        } else {
-            return EmailConstants.ALERT_TYPE_NORMAL;
+    private EmailResult executeWithErrorHandling(EmailOperation operation, 
+                                                String entityName, 
+                                                String recipient, 
+                                                String errorCode) {
+        try {
+            return operation.execute();
+        } catch (Exception e) {
+            log.error("记录邮件操作时发生异常 - 实体: {}, 收件人: {}, 错误: {}", 
+                     entityName, recipient, e.getMessage(), e);
+            
+            return EmailResult.failure(
+                "邮件操作失败: " + e.getMessage(),
+                errorCode,
+                recipient
+            );
         }
+    }
+    
+    /**
+     * 记录证书列表的通用方法
+     */
+    private void logCertificateList(String title, List<Certificate> certificates, boolean isExpired) {
+        if (certificates.isEmpty()) {
+            return;
+        }
+        
+        if (isExpired) {
+            log.warn(title + ":");
+            certificates.forEach(cert -> {
+                synchronized (DATE_FORMAT) {
+                    log.warn("  ⚠️ 证书: {}, 域名: {}, 到期日期: {}, 已过期: {}天", 
+                            cert.getName(), cert.getDomain(), 
+                            DATE_FORMAT.format(cert.getExpiryDate()),
+                            Math.abs(cert.getDaysUntilExpiry()));
+                }
+            });
+        } else {
+            log.info(title + ":");
+            certificates.forEach(cert -> {
+                synchronized (DATE_FORMAT) {
+                    log.info("  → 证书: {}, 域名: {}, 到期日期: {}, 剩余天数: {}天", 
+                            cert.getName(), cert.getDomain(), 
+                            DATE_FORMAT.format(cert.getExpiryDate()),
+                            cert.getDaysUntilExpiry());
+                }
+            });
+        }
+    }
+    
+    /**
+     * 函数式接口用于封装邮件操作
+     */
+    @FunctionalInterface
+    private interface EmailOperation {
+        EmailResult execute() throws Exception;
     }
 }

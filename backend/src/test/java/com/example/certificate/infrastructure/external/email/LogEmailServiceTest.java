@@ -93,7 +93,7 @@ class LogEmailServiceTest {
         assertFalse(result.isSuccess());
         assertEquals("LOG_EMAIL_FAILED", result.getErrorCode());
         assertEquals(testRecipient, result.getRecipient());
-        assertTrue(result.getErrorMessage().contains("邮件预警记录失败"));
+        assertTrue(result.getErrorMessage().contains("邮件操作失败"));
         
         // 验证监控日志服务被调用
         verify(monitoringLogService, times(1)).logEmailAlert(testCertificate, daysUntilExpiry, testRecipient);
@@ -163,7 +163,7 @@ class LogEmailServiceTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("LOG_SUMMARY_FAILED", result.getErrorCode());
-        assertTrue(result.getErrorMessage().contains("每日摘要记录失败"));
+        assertTrue(result.getErrorMessage().contains("邮件操作失败"));
         
         // 验证监控日志服务被调用
         verify(monitoringLogService, times(1)).logDailySummary(expiringSoonCertificates, expiredCertificates, testRecipient);
