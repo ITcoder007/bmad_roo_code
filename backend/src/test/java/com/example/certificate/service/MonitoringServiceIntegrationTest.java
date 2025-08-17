@@ -45,6 +45,9 @@ class MonitoringServiceIntegrationTest {
     @Mock
     private CertificateStatusConfig certificateStatusConfig;
     
+    @Mock
+    private AlertRuleEngine alertRuleEngine;
+    
     private MonitoringServiceImpl monitoringService;
     
     @BeforeEach
@@ -55,7 +58,8 @@ class MonitoringServiceIntegrationTest {
                 certificateRepository, 
                 certificateService, 
                 certificateStatusConfig,
-                monitoringLogService
+                monitoringLogService,
+                alertRuleEngine
         );
     }
     

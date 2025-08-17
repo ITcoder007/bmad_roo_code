@@ -45,6 +45,9 @@ class MonitoringServiceTest {
     @Mock
     private MonitoringLogService monitoringLogService;
     
+    @Mock
+    private AlertRuleEngine alertRuleEngine;
+    
     @InjectMocks
     private MonitoringServiceImpl monitoringService;
 

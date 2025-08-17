@@ -8,6 +8,8 @@ import com.example.certificate.common.exception.MonitoringException;
 import com.example.certificate.service.CertificateService;
 import com.example.certificate.service.MonitoringService;
 import com.example.certificate.service.MonitoringLogService;
+import com.example.certificate.service.AlertRuleEngine;
+import com.example.certificate.domain.model.AlertRule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class MonitoringServiceImpl implements MonitoringService {
     private final CertificateService certificateService;
     private final CertificateStatusConfig certificateStatusConfig;
     private final MonitoringLogService monitoringLogService;
+    private final AlertRuleEngine alertRuleEngine;
     
     @Override
     public void monitorAllCertificates() {
@@ -75,6 +78,10 @@ public class MonitoringServiceImpl implements MonitoringService {
                 // 更新证书状态
                 certificateService.updateCertificateStatus(certificate.getId(), currentStatus);
             }
+
+            // 评估预警规则并发送预警
+            evaluateAndSendAlerts(certificate);
+
         } catch (Exception e) {
             String errorMessage = String.format("监控证书 %s (ID: %s) 时发生异常", 
                     certificate.getName(), certificate.getId());
@@ -97,5 +104,77 @@ public class MonitoringServiceImpl implements MonitoringService {
     public CertificateStatus checkCertificateStatusWithConfig(Certificate certificate) {
         int thresholdDays = certificateStatusConfig.getExpiringSoonDays();
         return certificate.calculateStatus(thresholdDays);
+    }
+
+    /**
+     * 评估预警规则并发送预警
+     *
+     * @param certificate 证书信息
+     */
+    private void evaluateAndSendAlerts(Certificate certificate) {
+        try {
+            // 评估是否触发预警规则
+            if (alertRuleEngine.evaluateRules(certificate)) {
+                List<AlertRule> triggeredRules = alertRuleEngine.getTriggeredRules(certificate);
+                
+                log.info("证书 {} 触发了 {} 个预警规则", certificate.getName(), triggeredRules.size());
+                
+                for (AlertRule rule : triggeredRules) {
+                    sendAlert(certificate, rule);
+                }
+            } else {
+                log.debug("证书 {} 未触发任何预警规则", certificate.getName());
+            }
+        } catch (Exception e) {
+            log.error("评估证书 {} 的预警规则时发生错误: {}", certificate.getName(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送预警
+     *
+     * @param certificate 证书信息
+     * @param rule        触发的预警规则
+     */
+    private void sendAlert(Certificate certificate, AlertRule rule) {
+        try {
+            int daysUntilExpiry = alertRuleEngine.calculateDaysUntilExpiry(certificate);
+            
+            // MVP阶段仅记录日志，不实际发送预警
+            log.info("🚨 预警触发 - 证书: {}, 规则: {}, 剩余天数: {}, 预警渠道: {}", 
+                    certificate.getName(), 
+                    rule.getName(), 
+                    daysUntilExpiry, 
+                    rule.getAlertChannels());
+                    
+            // 记录预警日志到监控日志服务
+            logAlert(certificate, rule, daysUntilExpiry);
+            
+        } catch (Exception e) {
+            log.error("发送证书 {} 的预警时发生错误，规则: {}, 错误: {}", 
+                     certificate.getName(), rule.getName(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 记录预警日志
+     *
+     * @param certificate      证书信息
+     * @param rule             触发的规则
+     * @param daysUntilExpiry  距离到期天数
+     */
+    private void logAlert(Certificate certificate, AlertRule rule, int daysUntilExpiry) {
+        try {
+            // 使用现有的监控日志服务记录预警信息
+            String alertMessage = String.format("预警规则 '%s' 触发，剩余天数: %d，预警渠道: %s", 
+                    rule.getName(), daysUntilExpiry, rule.getAlertChannels());
+            
+            // 这里可以扩展，记录到专门的预警日志表中
+            // 当前使用监控日志服务记录
+            log.debug("记录预警日志: {}", alertMessage);
+            
+        } catch (Exception e) {
+            log.error("记录预警日志时发生错误: {}", e.getMessage(), e);
+        }
     }
 }

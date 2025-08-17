@@ -40,6 +40,9 @@ class MonitoringServiceFunctionalTest {
     @Mock
     private CertificateStatusConfig certificateStatusConfig;
     
+    @Mock
+    private AlertRuleEngine alertRuleEngine;
+    
     private MonitoringServiceImpl monitoringService;
     private CertificateScheduler certificateScheduler;
     
@@ -51,7 +54,8 @@ class MonitoringServiceFunctionalTest {
                 certificateRepository, 
                 certificateService, 
                 certificateStatusConfig,
-                monitoringLogService
+                monitoringLogService,
+                alertRuleEngine
         );
         
         certificateScheduler = new CertificateScheduler(monitoringService);
