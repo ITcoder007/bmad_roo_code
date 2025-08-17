@@ -82,3 +82,64 @@ certificate:
     max-retries: ${CERTIFICATE_MAX_RETRIES:3}
     # 批量处理大小
     batch-size: ${CERTIFICATE_BATCH_SIZE:100}
+
+# 邮件预警配置
+alert:
+  email:
+    # 是否启用邮件功能
+    enabled: ${ALERT_EMAIL_ENABLED:true}
+    # 邮件发送模式：log（日志模式）或 real（真实发送模式）
+    mode: ${ALERT_EMAIL_MODE:log}
+    # 默认收件人邮箱
+    default-recipient: ${ALERT_EMAIL_DEFAULT_RECIPIENT:admin@example.com}
+    
+    # SMTP 服务器配置（真实发送模式使用）
+    smtp:
+      host: ${ALERT_EMAIL_SMTP_HOST:smtp.example.com}
+      port: ${ALERT_EMAIL_SMTP_PORT:587}
+      username: ${ALERT_EMAIL_SMTP_USERNAME:noreply@example.com}
+      password: ${ALERT_EMAIL_SMTP_PASSWORD:}
+      tls-enabled: ${ALERT_EMAIL_SMTP_TLS:true}
+      connection-timeout: ${ALERT_EMAIL_SMTP_CONN_TIMEOUT:30000}
+      read-timeout: ${ALERT_EMAIL_SMTP_READ_TIMEOUT:30000}
+    
+    # 邮件模板配置
+    templates:
+      expiry-alert:
+        subject: "🚨 证书即将过期预警 - {certificateName}"
+        content-template: |
+          尊敬的管理员，
+          
+          证书预警通知：
+          
+          证书名称：{certificateName}
+          证书域名：{domain}
+          到期日期：{expiryDate}
+          剩余天数：{daysUntilExpiry}天
+          预警类型：{alertType}
+          
+          请及时处理证书续期事宜。
+          
+          此邮件由证书生命周期管理系统自动发送。
+        html-enabled: false
+      
+      daily-summary:
+        subject: "📊 证书状态每日摘要 - {currentDate}"
+        content-template: |
+          证书状态每日摘要报告
+          
+          即将过期证书：{expiringSoonCount}个
+          已过期证书：{expiredCount}个
+          
+          详细信息请查看系统管理界面。
+          
+          此邮件由证书生命周期管理系统自动发送。
+        html-enabled: false
+    
+    # 发送限制配置
+    limits:
+      max-batch-size: ${ALERT_EMAIL_MAX_BATCH_SIZE:100}
+      hourly-limit: ${ALERT_EMAIL_HOURLY_LIMIT:1000}
+      daily-limit: ${ALERT_EMAIL_DAILY_LIMIT:10000}
+      send-interval: ${ALERT_EMAIL_SEND_INTERVAL:1000}
+      rate-limit-enabled: ${ALERT_EMAIL_RATE_LIMIT:true}

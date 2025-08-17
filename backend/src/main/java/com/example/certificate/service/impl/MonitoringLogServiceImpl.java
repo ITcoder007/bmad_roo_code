@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 监控日志服务实现
@@ -64,5 +65,61 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
                 .build();
         
         monitoringLogRepository.save(monitoringLog);
+    }
+    
+    @Override
+    public void logEmailAlert(Certificate certificate, int daysUntilExpiry, String recipient) {
+        log.info("记录邮件预警日志: 证书 {} 发送给 {}, 剩余 {} 天", 
+                certificate.getName(), recipient, daysUntilExpiry);
+        
+        String message = String.format("邮件预警 - 证书: %s (域名: %s)，剩余天数: %d，收件人: %s", 
+                certificate.getName(), 
+                certificate.getDomain(), 
+                daysUntilExpiry,
+                recipient);
+        
+        MonitoringLog monitoringLog = MonitoringLog.builder()
+                .certificateId(certificate.getId())
+                .logType(LogType.ALERT_EMAIL)
+                .logTime(new Date())
+                .message(message)
+                .daysUntilExpiry(daysUntilExpiry)
+                .createdAt(new Date())
+                .build();
+        
+        monitoringLogRepository.save(monitoringLog);
+    }
+    
+    @Override
+    public void logDailySummary(List<Certificate> expiringSoonCertificates, 
+                               List<Certificate> expiredCertificates, 
+                               String recipient) {
+        log.info("记录每日摘要日志: 即将过期 {} 个，已过期 {} 个，收件人: {}", 
+                expiringSoonCertificates.size(), expiredCertificates.size(), recipient);
+        
+        String message = String.format("每日摘要 - 即将过期证书: %d个，已过期证书: %d个，收件人: %s", 
+                expiringSoonCertificates.size(), 
+                expiredCertificates.size(),
+                recipient);
+        
+        MonitoringLog monitoringLog = MonitoringLog.builder()
+                .certificateId(null) // 摘要日志不关联特定证书
+                .logType(LogType.ALERT_EMAIL)
+                .logTime(new Date())
+                .message(message)
+                .createdAt(new Date())
+                .build();
+        
+        monitoringLogRepository.save(monitoringLog);
+        
+        // 为每个即将过期的证书单独记录日志
+        for (Certificate cert : expiringSoonCertificates) {
+            logEmailAlert(cert, (int) cert.getDaysUntilExpiry(), recipient);
+        }
+        
+        // 为每个已过期的证书单独记录日志
+        for (Certificate cert : expiredCertificates) {
+            logEmailAlert(cert, (int) cert.getDaysUntilExpiry(), recipient);
+        }
     }
 }

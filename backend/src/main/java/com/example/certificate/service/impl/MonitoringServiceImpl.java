@@ -9,6 +9,9 @@ import com.example.certificate.service.CertificateService;
 import com.example.certificate.service.MonitoringService;
 import com.example.certificate.service.MonitoringLogService;
 import com.example.certificate.service.AlertRuleEngine;
+import com.example.certificate.service.EmailService;
+import com.example.certificate.service.dto.EmailResult;
+import com.example.certificate.config.EmailConfig;
 import com.example.certificate.domain.model.AlertRule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,8 @@ public class MonitoringServiceImpl implements MonitoringService {
     private final CertificateStatusConfig certificateStatusConfig;
     private final MonitoringLogService monitoringLogService;
     private final AlertRuleEngine alertRuleEngine;
+    private final EmailService emailService;
+    private final EmailConfig emailConfig;
     
     @Override
     public void monitorAllCertificates() {
@@ -140,12 +145,22 @@ public class MonitoringServiceImpl implements MonitoringService {
         try {
             int daysUntilExpiry = alertRuleEngine.calculateDaysUntilExpiry(certificate);
             
-            // MVP阶段仅记录日志，不实际发送预警
             log.info("🚨 预警触发 - 证书: {}, 规则: {}, 剩余天数: {}, 预警渠道: {}", 
                     certificate.getName(), 
                     rule.getName(), 
                     daysUntilExpiry, 
                     rule.getAlertChannels());
+            
+            // 根据预警规则的渠道配置发送不同类型的预警
+            List<String> alertChannels = rule.getAlertChannels();
+            
+            if (alertChannels.contains("EMAIL")) {
+                sendEmailAlert(certificate, daysUntilExpiry, rule);
+            }
+            
+            if (alertChannels.contains("SMS")) {
+                sendSmsAlert(certificate, daysUntilExpiry, rule);
+            }
                     
             // 记录预警日志到监控日志服务
             logAlert(certificate, rule, daysUntilExpiry);
@@ -153,6 +168,62 @@ public class MonitoringServiceImpl implements MonitoringService {
         } catch (Exception e) {
             log.error("发送证书 {} 的预警时发生错误，规则: {}, 错误: {}", 
                      certificate.getName(), rule.getName(), e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 发送邮件预警
+     *
+     * @param certificate     证书信息
+     * @param daysUntilExpiry 距离到期天数
+     * @param rule            触发的预警规则
+     */
+    private void sendEmailAlert(Certificate certificate, int daysUntilExpiry, AlertRule rule) {
+        try {
+            // 检查邮件功能是否启用
+            if (!emailConfig.isEnabled()) {
+                log.debug("邮件功能未启用，跳过邮件预警");
+                return;
+            }
+            
+            String recipient = emailConfig.getDefaultRecipient();
+            
+            // 发送邮件预警
+            EmailResult result = emailService.sendExpiryAlertEmail(certificate, daysUntilExpiry, recipient);
+            
+            if (result.isSuccess()) {
+                log.info("✅ 邮件预警发送成功 - 证书: {}, 收件人: {}, 模式: {}", 
+                        certificate.getName(), recipient, emailConfig.getMode());
+            } else {
+                log.warn("⚠️ 邮件预警发送失败 - 证书: {}, 错误: {}", 
+                        certificate.getName(), result.getErrorMessage());
+            }
+            
+        } catch (Exception e) {
+            log.error("发送邮件预警时发生异常 - 证书: {}, 错误: {}", 
+                     certificate.getName(), e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * 发送短信预警
+     *
+     * @param certificate     证书信息
+     * @param daysUntilExpiry 距离到期天数
+     * @param rule            触发的预警规则
+     */
+    private void sendSmsAlert(Certificate certificate, int daysUntilExpiry, AlertRule rule) {
+        try {
+            // MVP阶段暂未实现短信服务，仅记录日志
+            log.info("📱 短信预警触发 - 证书: {}, 剩余天数: {}天, 规则: {} (MVP阶段，仅记录日志)",
+                    certificate.getName(), daysUntilExpiry, rule.getName());
+            
+            // TODO: 在后续版本中实现真实的短信发送服务
+            // SmsResult result = smsService.sendExpiryAlertSms(certificate, daysUntilExpiry, recipient);
+            
+        } catch (Exception e) {
+            log.error("发送短信预警时发生异常 - 证书: {}, 错误: {}", 
+                     certificate.getName(), e.getMessage(), e);
         }
     }
 
