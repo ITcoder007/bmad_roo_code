@@ -10,7 +10,10 @@ import {
   updateCertificate,
   deleteCertificate,
   getCertificateStatistics,
-  searchCertificates as apiSearchCertificates
+  searchCertificates as apiSearchCertificates,
+  getDashboardStats,
+  getExpiringCertificatesForDashboard,
+  getRecentCertificates
 } from '@/api/certificate'
 
 export const useCertificateStore = defineStore('certificate', () => {
@@ -42,6 +45,18 @@ export const useCertificateStore = defineStore('certificate', () => {
     prop: '',
     order: ''
   })
+  
+  // 仪表板相关状态
+  const dashboardStats = ref({
+    total: 0,
+    normal: 0,
+    expiring: 0,
+    expired: 0
+  })
+  const expiringCertificates = ref([])
+  const recentCertificates = ref([])
+  const statsLoading = ref(false)
+  const dashboardCacheTime = ref(null)
 
   // 计算属性
   const certificateList = computed(() => certificates.value)
@@ -56,6 +71,30 @@ export const useCertificateStore = defineStore('certificate', () => {
   const searchResultsCount = computed(() => searchResults.value.length)
   const displayCertificates = computed(() => {
     return hasSearchQuery.value ? searchResults.value : certificates.value
+  })
+  
+  // 仪表板相关计算属性
+  const totalCertificates = computed(() => dashboardStats.value.total)
+  
+  const normalPercentage = computed(() => {
+    const total = dashboardStats.value.total
+    return total > 0 ? Math.round((dashboardStats.value.normal / total) * 100) : 0
+  })
+  
+  const criticalCertificatesCount = computed(() => {
+    return dashboardStats.value.expiring + dashboardStats.value.expired
+  })
+  
+  const hasExpiringCertificates = computed(() => expiringCertificates.value.length > 0)
+  
+  const isStatsLoading = computed(() => statsLoading.value)
+  
+  const isDashboardCacheValid = computed(() => {
+    if (!dashboardCacheTime.value) return false
+    const now = new Date()
+    const cacheTime = new Date(dashboardCacheTime.value)
+    const diffMinutes = (now - cacheTime) / (1000 * 60)
+    return diffMinutes < 5 // 缓存5分钟
   })
 
   // 获取证书列表
@@ -281,6 +320,70 @@ export const useCertificateStore = defineStore('certificate', () => {
     currentCertificate.value = null
   }
 
+  // 仪表板相关方法
+  const fetchDashboardStats = async () => {
+    if (isDashboardCacheValid.value) {
+      return dashboardStats.value
+    }
+    
+    try {
+      statsLoading.value = true
+      const result = await getDashboardStats()
+      dashboardStats.value = result
+      dashboardCacheTime.value = new Date()
+      return result
+    } catch (error) {
+      console.error('获取仪表板统计失败:', error)
+      throw error
+    } finally {
+      statsLoading.value = false
+    }
+  }
+  
+  const fetchExpiringCertificatesForDashboard = async (days = 7) => {
+    try {
+      const result = await getExpiringCertificatesForDashboard(days)
+      expiringCertificates.value = result || []
+      return result
+    } catch (error) {
+      console.error('获取即将过期证书失败:', error)
+      expiringCertificates.value = []
+      throw error
+    }
+  }
+  
+  const fetchRecentCertificatesForDashboard = async (limit = 5) => {
+    try {
+      const result = await getRecentCertificates(limit)
+      recentCertificates.value = result || []
+      return result
+    } catch (error) {
+      console.error('获取最近证书失败:', error)
+      recentCertificates.value = []
+      throw error
+    }
+  }
+  
+  const fetchDashboardData = async () => {
+    try {
+      statsLoading.value = true
+      await Promise.all([
+        fetchDashboardStats(),
+        fetchExpiringCertificatesForDashboard(7),
+        fetchRecentCertificatesForDashboard(5)
+      ])
+    } catch (error) {
+      console.error('获取仪表板数据失败:', error)
+      throw error
+    } finally {
+      statsLoading.value = false
+    }
+  }
+  
+  const invalidateDashboardCache = () => {
+    dashboardCacheTime.value = null
+  }
+
   // 刷新数据
   const refreshData = async () => {
     await Promise.all([
@@ -302,6 +405,13 @@ export const useCertificateStore = defineStore('certificate', () => {
     searchResults,
     lastSearchQuery,
     
+    // 仪表板相关状态
+    dashboardStats,
+    expiringCertificates,
+    recentCertificates,
+    statsLoading,
+    dashboardCacheTime,
+    
     // 计算属性
     certificateList,
     isLoading,
@@ -312,6 +422,14 @@ export const useCertificateStore = defineStore('certificate', () => {
     isSearching,
     searchResultsCount,
     displayCertificates,
+    
+    // 仪表板相关计算属性
+    totalCertificates,
+    normalPercentage,
+    criticalCertificatesCount,
+    hasExpiringCertificates,
+    isStatsLoading,
+    isDashboardCacheValid,
     
     // 方法
     fetchCertificateList,
@@ -328,6 +446,13 @@ export const useCertificateStore = defineStore('certificate', () => {
     refreshData,
     searchCertificates,
     clearSearch,
-    updateSearchQuery
+    updateSearchQuery,
+    
+    // 仪表板相关方法
+    fetchDashboardStats,
+    fetchExpiringCertificatesForDashboard,
+    fetchRecentCertificatesForDashboard,
+    fetchDashboardData,
+    invalidateDashboardCache
   }
 })

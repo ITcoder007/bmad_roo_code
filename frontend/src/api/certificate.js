@@ -194,3 +194,29 @@ export function getCertificateSearchSuggestions(query, limit = 5) {
     limit
   })
 }
+
+/**
+ * 获取仪表板统计信息
+ * @returns {Promise} 仪表板统计数据
+ */
+export function getDashboardStats() {
+  return http.get(`${API_PREFIX}/dashboard/stats`)
+}
+
+/**
+ * 获取即将过期的证书（仪表板专用）
+ * @param {number} days 天数阈值，默认7天
+ * @returns {Promise} 即将过期的证书列表
+ */
+export function getExpiringCertificatesForDashboard(days = 7) {
+  return http.get(`${API_PREFIX}/expiring`, { days })
+}
+
+/**
+ * 获取最近添加的证书
+ * @param {number} limit 数量限制，默认5个
+ * @returns {Promise} 最近添加的证书列表
+ */
+export function getRecentCertificates(limit = 5) {
+  return http.get(`${API_PREFIX}/recent`, { limit })
+}
