@@ -295,14 +295,29 @@ class CertificateStatusIntegrationTest {
      * 创建测试用证书
      */
     private Long createTestCertificate(String name, String domain, int daysUntilExpiry) {
+        Date expiryDate = getDateDaysFromNow(daysUntilExpiry);
+        
+        // 使用 Certificate 领域模型计算正确的状态
+        Certificate certificate = Certificate.builder()
+                .name(name)
+                .domain(domain)
+                .issuer("Test CA")
+                .issueDate(getDateDaysFromNow(-365))
+                .expiryDate(expiryDate)
+                .certificateType("SSL")
+                .build();
+        
+        // 计算状态
+        CertificateStatus calculatedStatus = certificate.calculateStatus();
+        
         CertificateEntity entity = CertificateEntity.builder()
                 .name(name)
                 .domain(domain)
                 .issuer("Test CA")
                 .issueDate(getDateDaysFromNow(-365))
-                .expiryDate(getDateDaysFromNow(daysUntilExpiry))
+                .expiryDate(expiryDate)
                 .certificateType("SSL")
-                .status(CertificateStatus.NORMAL.name()) // 初始状态，会在保存时重新计算
+                .status(calculatedStatus.name()) // 使用计算后的正确状态
                 .createdAt(now)
                 .updatedAt(now)
                 .build();
