@@ -33,6 +33,10 @@ export const useCertificateStore = defineStore('certificate', () => {
     status: '',
     sort: ''
   })
+  const sortConfig = ref({
+    prop: '',
+    order: ''
+  })
 
   // 计算属性
   const certificateList = computed(() => certificates.value)
@@ -182,6 +186,11 @@ export const useCertificateStore = defineStore('certificate', () => {
     pagination.value.page = 1
   }
 
+  // 设置排序配置
+  const setSortConfig = (config) => {
+    sortConfig.value = { ...sortConfig.value, ...config }
+  }
+
   // 清除当前证书
   const clearCurrentCertificate = () => {
     currentCertificate.value = null
@@ -203,6 +212,7 @@ export const useCertificateStore = defineStore('certificate', () => {
     loading,
     pagination,
     searchParams,
+    sortConfig,
     
     // 计算属性
     certificateList,
@@ -221,6 +231,7 @@ export const useCertificateStore = defineStore('certificate', () => {
     updateSearchParams,
     updatePagination,
     resetSearchParams,
+    setSortConfig,
     clearCurrentCertificate,
     refreshData
   }

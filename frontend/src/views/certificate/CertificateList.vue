@@ -1,182 +1,169 @@
 <template>
   <div class="certificate-list">
-    <!-- 页面头部 -->
-    <div class="page-header">
-      <h1 class="page-title">证书列表</h1>
-      <p class="page-description">管理和监控所有证书的状态和信息</p>
+    <!-- 筛选区域 -->
+    <div class="filter-section">
+      <el-row :gutter="16">
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-select 
+            v-model="statusFilter" 
+            placeholder="筛选状态"
+            clearable
+            @change="handleStatusChange"
+          >
+            <el-option label="全部" value="" />
+            <el-option label="正常" value="NORMAL" />
+            <el-option label="即将过期" value="EXPIRING_SOON" />
+            <el-option label="已过期" value="EXPIRED" />
+          </el-select>
+        </el-col>
+        <el-col :xs="24" :sm="12" :md="8">
+          <el-button type="primary" @click="handleRefresh">
+            <el-icon><Refresh /></el-icon>
+            刷新
+          </el-button>
+        </el-col>
+      </el-row>
     </div>
-
-    <!-- 操作区域 -->
-    <div class="page-actions">
-      <div class="actions-left">
-        <!-- 搜索框 -->
-        <el-input
-          v-model="searchKeyword"
-          placeholder="搜索证书名称或域名"
-          style="width: 300px"
-          clearable
-        >
-          <template #prefix>
-            <el-icon><Search /></el-icon>
-          </template>
-        </el-input>
-
-        <!-- 状态筛选 -->
-        <el-select
-          v-model="selectedStatus"
-          placeholder="选择状态"
-          style="width: 150px"
-          clearable
-        >
-          <el-option label="全部" value="" />
-          <el-option label="正常" value="NORMAL" />
-          <el-option label="即将过期" value="EXPIRING_SOON" />
-          <el-option label="已过期" value="EXPIRED" />
-        </el-select>
-      </div>
-
-      <div class="actions-right">
-        <!-- 刷新按钮 -->
-        <el-button type="default" @click="handleRefresh">
-          <el-icon><Refresh /></el-icon>
-          刷新
-        </el-button>
-
-        <!-- 导出按钮 -->
-        <el-button type="primary" @click="handleExport">
-          <el-icon><Download /></el-icon>
-          导出
-        </el-button>
-
-        <!-- 添加证书按钮 -->
-        <el-button type="primary" @click="handleAdd">
-          <el-icon><Plus /></el-icon>
-          添加证书
-        </el-button>
-      </div>
-    </div>
-
+    
     <!-- 表格区域 -->
-    <div class="content-section">
-      <el-table
-        :data="certificateList"
-        :loading="loading"
-        border
-        stripe
-        style="width: 100%"
-        @selection-change="handleSelectionChange"
-      >
-        <el-table-column type="selection" width="55" />
-        
-        <el-table-column prop="name" label="证书名称" min-width="150">
-          <template #default="{ row }">
-            <el-link 
-              type="primary" 
-              @click="handleDetail(row)"
-              :underline="false"
-            >
-              {{ row.name }}
-            </el-link>
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="domain" label="域名" min-width="200" />
-
-        <el-table-column prop="issuer" label="颁发机构" min-width="150" />
-
-        <el-table-column prop="expiryDate" label="过期时间" min-width="120">
-          <template #default="{ row }">
-            {{ formatDate(row.expiryDate) }}
-          </template>
-        </el-table-column>
-
-        <el-table-column prop="status" label="状态" width="100">
-          <template #default="{ row }">
-            <el-tag :type="getStatusType(row.status)">
-              {{ getStatusText(row.status) }}
-            </el-tag>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="剩余天数" width="100">
-          <template #default="{ row }">
-            <span :class="getDaysColor(row.daysUntilExpiry)">
-              {{ row.daysUntilExpiry }} 天
-            </span>
-          </template>
-        </el-table-column>
-
-        <el-table-column label="操作" width="180" fixed="right">
-          <template #default="{ row }">
-            <el-button size="small" @click="handleDetail(row)">
-              查看
-            </el-button>
-            <el-button size="small" type="primary" @click="handleEdit(row)">
-              编辑
-            </el-button>
-            <el-button size="small" type="danger" @click="handleDelete(row)">
-              删除
-            </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-
-      <!-- 分页 -->
-      <div class="pagination-wrapper">
-        <el-pagination
-          v-model:current-page="pagination.page"
-          v-model:page-size="pagination.size"
-          :total="pagination.total"
-          :page-sizes="[10, 20, 50, 100]"
-          layout="total, sizes, prev, pager, next, jumper"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </div>
+    <BaseTable
+      :data="paginatedCertificates"
+      :loading="loading"
+      border
+      stripe
+      @sort-change="handleSortChange"
+    >
+      <el-table-column prop="name" label="证书名称" sortable min-width="150">
+        <template #default="{ row }">
+          <el-link 
+            type="primary" 
+            @click="viewDetails(row.id)"
+            :underline="false"
+          >
+            {{ row.name }}
+          </el-link>
+        </template>
+      </el-table-column>
+      
+      <el-table-column prop="domain" label="域名" min-width="200" />
+      
+      <el-table-column prop="issuer" label="颁发机构" min-width="150" />
+      
+      <el-table-column prop="expiryDate" label="到期日期" sortable min-width="120">
+        <template #default="{ row }">
+          {{ formatDate(row.expiryDate) }}
+        </template>
+      </el-table-column>
+      
+      <el-table-column prop="status" label="状态" sortable width="100">
+        <template #default="{ row }">
+          <el-tag :type="getStatusType(row.status)">
+            {{ getStatusText(row.status) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      
+      <el-table-column label="操作" width="180" fixed="right">
+        <template #default="{ row }">
+          <el-button 
+            size="small" 
+            @click="viewDetails(row.id)"
+            data-testid="view-details"
+          >
+            查看
+          </el-button>
+          <el-button 
+            size="small" 
+            type="primary" 
+            @click="editCertificate(row.id)"
+          >
+            编辑
+          </el-button>
+          <el-button 
+            size="small" 
+            type="danger" 
+            @click="deleteCertificate(row.id)"
+          >
+            删除
+          </el-button>
+        </template>
+      </el-table-column>
+    </BaseTable>
+    
+    <!-- 分页 -->
+    <el-pagination
+      v-model:current-page="currentPage"
+      :page-size="pageSize"
+      :total="totalCertificates"
+      layout="total, prev, pager, next"
+      @current-change="handlePageChange"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Download, Plus } from '@element-plus/icons-vue'
-import { getCertificateList, deleteCertificate } from '@/api/certificate'
+import { Refresh } from '@element-plus/icons-vue'
+import { useCertificateStore } from '@/stores/modules/certificate'
+import BaseTable from '@/components/common/BaseTable.vue'
 
 const router = useRouter()
+const certificateStore = useCertificateStore()
 
 // 响应式数据
 const loading = ref(false)
-const searchKeyword = ref('')
-const selectedStatus = ref('')
-const certificateList = ref([])
-const selectedRows = ref([])
+const statusFilter = ref('')
+const currentPage = ref(1)
+const pageSize = ref(20)
 
-// 分页数据
-const pagination = reactive({
-  page: 1,
-  size: 20,
-  total: 0
+// 计算属性
+const filteredCertificates = computed(() => {
+  let certificates = certificateStore.certificates
+  if (statusFilter.value) {
+    certificates = certificates.filter(cert => cert.status === statusFilter.value)
+  }
+  return certificates
 })
 
-// 获取证书列表
-const loadCertificateList = async () => {
+const sortedCertificates = computed(() => {
+  let result = [...filteredCertificates.value]
+  
+  if (certificateStore.sortConfig.prop) {
+    result = result.sort((a, b) => {
+      const aVal = a[certificateStore.sortConfig.prop]
+      const bVal = b[certificateStore.sortConfig.prop]
+      const order = certificateStore.sortConfig.order === 'ascending' ? 1 : -1
+      
+      if (certificateStore.sortConfig.prop === 'expiryDate') {
+        return (new Date(aVal) - new Date(bVal)) * order
+      } else if (certificateStore.sortConfig.prop === 'status') {
+        const statusOrder = { 'EXPIRED': 3, 'EXPIRING_SOON': 2, 'NORMAL': 1 }
+        return (statusOrder[aVal] - statusOrder[bVal]) * order
+      } else {
+        return aVal.localeCompare(bVal) * order
+      }
+    })
+  }
+  
+  return result
+})
+
+const totalCertificates = computed(() => sortedCertificates.value.length)
+
+const paginatedCertificates = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return sortedCertificates.value.slice(start, end)
+})
+
+// 方法
+const loadCertificates = async () => {
+  loading.value = true
   try {
-    loading.value = true
-    const params = {
-      page: pagination.page,
-      size: pagination.size,
-      keyword: searchKeyword.value,
-      status: selectedStatus.value
-    }
-    
-    const result = await getCertificateList(params)
-    // 修复：后端返回的数据在 records 字段中
-    certificateList.value = result.records || []
-    pagination.total = result.total || 0
+    await certificateStore.fetchCertificateList()
   } catch (error) {
-    console.error('获取证书列表失败:', error)
     ElMessage.error('获取证书列表失败')
   } finally {
     loading.value = false
@@ -209,157 +196,112 @@ const getStatusText = (status) => {
   return textMap[status] || '未知'
 }
 
-// 获取剩余天数颜色
-const getDaysColor = (days) => {
-  if (days < 0) return 'text-danger'
-  if (days <= 7) return 'text-danger'
-  if (days <= 30) return 'text-warning'
-  return 'text-success'
-}
-
 // 事件处理
 const handleRefresh = () => {
-  loadCertificateList()
+  loadCertificates()
 }
 
-const handleExport = () => {
-  ElMessage.info('导出功能开发中...')
+const handleSortChange = ({ prop, order }) => {
+  certificateStore.setSortConfig({ prop, order })
 }
 
-const handleAdd = () => {
-  router.push('/certificates/add')
+const viewDetails = (id) => {
+  router.push(`/certificates/${id}`)
 }
 
-const handleDetail = (row) => {
-  router.push(`/certificates/${row.id}`)
+const editCertificate = (id) => {
+  router.push(`/certificates/${id}/edit`)
 }
 
-const handleEdit = (row) => {
-  router.push(`/certificates/${row.id}/edit`)
-}
-
-const handleDelete = async (row) => {
+const deleteCertificate = async (id) => {
   try {
-    await ElMessageBox.confirm(
-      `确定要删除证书 "${row.name}" 吗？`,
-      '确认删除',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
+    await ElMessageBox.confirm('确认删除此证书？', '警告', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
     
-    await deleteCertificate(row.id)
+    await certificateStore.removeExistingCertificate(id)
     ElMessage.success('删除成功')
-    loadCertificateList()
+    await loadCertificates()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除证书失败:', error)
       ElMessage.error('删除失败')
     }
   }
 }
 
-const handleSelectionChange = (selection) => {
-  selectedRows.value = selection
-}
-
-const handleSizeChange = (size) => {
-  pagination.size = size
-  pagination.page = 1
-  loadCertificateList()
-}
-
-const handleCurrentChange = (page) => {
-  pagination.page = page
-  loadCertificateList()
-}
-
-// 监听搜索条件变化
-const searchDebounce = ref(null)
-const handleSearch = () => {
-  if (searchDebounce.value) {
-    clearTimeout(searchDebounce.value)
-  }
-  searchDebounce.value = setTimeout(() => {
-    pagination.page = 1
-    loadCertificateList()
-  }, 500)
-}
-
-// 监听状态筛选变化
 const handleStatusChange = () => {
-  pagination.page = 1
-  loadCertificateList()
+  currentPage.value = 1
+}
+
+const handlePageChange = (page) => {
+  currentPage.value = page
 }
 
 // 生命周期
 onMounted(() => {
-  loadCertificateList()
+  loadCertificates()
 })
 </script>
 
 <style scoped>
 .certificate-list {
-  padding: 0;
+  padding: 20px;
 }
 
-.page-actions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.filter-section {
   margin-bottom: 20px;
-  gap: 16px;
-}
-
-.actions-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.actions-right {
-  display: flex;
-  gap: 8px;
-}
-
-.content-section {
+  padding: 16px;
   background: #fff;
   border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.pagination-wrapper {
+.el-pagination {
   display: flex;
   justify-content: center;
-  padding: 20px 0;
-}
-
-.text-success {
-  color: #67c23a;
-}
-
-.text-warning {
-  color: #e6a23c;
-}
-
-.text-danger {
-  color: #f56c6c;
+  margin-top: 20px;
+  padding: 16px 0;
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .page-actions {
-    flex-direction: column;
-    align-items: stretch;
+  .certificate-list {
+    padding: 12px;
   }
   
-  .actions-left {
-    justify-content: space-between;
+  .filter-section {
+    margin-bottom: 16px;
+    padding: 12px;
   }
   
-  .actions-right {
-    justify-content: center;
+  .el-pagination {
+    margin-top: 16px;
+    padding: 12px 0;
+  }
+  
+  .el-pagination :deep(.el-pager) {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  .certificate-list {
+    padding: 8px;
+  }
+  
+  .filter-section {
+    padding: 8px;
+  }
+  
+  /* 操作按钮在小屏幕上垂直堆叠 */
+  :deep(.el-table__fixed-right) {
+    .el-button {
+      display: block;
+      margin: 2px 0;
+      width: 100%;
+    }
   }
 }
 </style>
