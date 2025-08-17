@@ -37,5 +37,8 @@
     "spring-boot"
   ],
   "author": "Your Organization",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.11.0"
+  }
 }
