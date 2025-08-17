@@ -139,7 +139,8 @@
         @click="toggleCollapse"
       >
         <el-icon>
-          <component :is="collapsed ? 'Expand' : 'Fold'" />
+          <Expand v-if="collapsed" />
+          <Fold v-else />
         </el-icon>
       </el-button>
     </div>

@@ -72,7 +72,7 @@ import CertificateStatusBadge from './CertificateStatusBadge.vue'
 import dayjs from 'dayjs'
 
 // Props
-const props = defineProps({
+defineProps({
   certificates: {
     type: Array,
     default: () => []

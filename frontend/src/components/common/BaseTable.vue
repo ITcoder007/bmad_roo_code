@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 
 // 定义 props
 const props = defineProps({

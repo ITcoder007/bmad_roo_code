@@ -43,7 +43,7 @@
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref } from 'vue'
 
 // 定义 props
 const props = defineProps({

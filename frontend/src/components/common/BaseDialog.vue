@@ -60,7 +60,7 @@
 </template>
 
 <script setup>
-import { computed, watch } from 'vue'
+import { computed } from 'vue'
 
 // 定义 props
 const props = defineProps({

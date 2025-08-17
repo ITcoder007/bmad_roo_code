@@ -138,7 +138,7 @@ const handleRefresh = async () => {
 }
 
 // 自动刷新功能 - 每5分钟刷新一次
-const { startAutoRefresh, stopAutoRefresh, forceRefresh } = useAutoRefresh(() => {
+const { startAutoRefresh, stopAutoRefresh } = useAutoRefresh(() => {
   fetchDashboardData()
 }, 5 * 60 * 1000) // 5分钟
 

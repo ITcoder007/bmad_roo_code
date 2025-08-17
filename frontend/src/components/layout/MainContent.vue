@@ -14,7 +14,7 @@
 
 <script setup>
 // 定义 props
-const props = defineProps({
+defineProps({
   sidebarCollapsed: {
     type: Boolean,
     default: false

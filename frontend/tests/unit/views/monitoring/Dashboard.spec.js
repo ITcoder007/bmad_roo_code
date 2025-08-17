@@ -5,29 +5,23 @@ import Dashboard from '@/views/monitoring/Dashboard.vue'
 import { useCertificateStore } from '@/stores/modules/certificate'
 
 // Mock 组件
-vi.mock('@/components/business/CertificateStatsCard.vue', () => ({
-  default: {
-    name: 'CertificateStatsCard',
-    props: ['stats', 'loading'],
-    template: '<div data-testid="stats-card">Stats Card</div>'
-  }
-}))
+const CertificateStatsCard = {
+  name: 'CertificateStatsCard',
+  props: ['stats', 'loading'],
+  template: '<div data-testid="stats-card">Stats Card</div>'
+}
 
-vi.mock('@/components/business/ExpiringCertificatesList.vue', () => ({
-  default: {
-    name: 'ExpiringCertificatesList',
-    props: ['certificates', 'loading'],
-    template: '<div data-testid="expiring-list">Expiring List</div>'
-  }
-}))
+const ExpiringCertificatesList = {
+  name: 'ExpiringCertificatesList',
+  props: ['certificates', 'loading'],
+  template: '<div data-testid="expiring-list">Expiring List</div>'
+}
 
-vi.mock('@/components/business/RecentCertificatesList.vue', () => ({
-  default: {
-    name: 'RecentCertificatesList',
-    props: ['certificates', 'loading'],
-    template: '<div data-testid="recent-list">Recent List</div>'
-  }
-}))
+const RecentCertificatesList = {
+  name: 'RecentCertificatesList',
+  props: ['certificates', 'loading'],
+  template: '<div data-testid="recent-list">Recent List</div>'
+}
 
 // Mock auto refresh hook
 const mockStartAutoRefresh = vi.fn()
@@ -112,7 +106,10 @@ describe('Dashboard.vue', () => {
           'el-col': true,
           'el-icon': true,
           'el-skeleton': true,
-          'el-empty': true
+          'el-empty': true,
+          'CertificateStatsCard': CertificateStatsCard,
+          'ExpiringCertificatesList': ExpiringCertificatesList,
+          'RecentCertificatesList': RecentCertificatesList
         }
       },
       ...options
@@ -122,6 +119,9 @@ describe('Dashboard.vue', () => {
   describe('渲染测试', () => {
     it('应该正确渲染仪表板页面', () => {
       wrapper = createWrapper()
+      
+      // 调试：输出实际 HTML
+      console.log('Dashboard HTML:', wrapper.html())
       
       expect(wrapper.find('h1').text()).toBe('系统仪表板')
       expect(wrapper.find('[data-testid="stats-card"]').exists()).toBe(true)
@@ -164,7 +164,7 @@ describe('Dashboard.vue', () => {
       const statsCard = wrapper.findComponent({ name: 'CertificateStatsCard' })
       expect(statsCard.exists()).toBe(true)
       expect(statsCard.props('stats')).toEqual(store.dashboardStats)
-      expect(statsCard.props('loading')).toBe(store.statsLoading)
+      expect(statsCard.props('loading')).toBe(store.isStatsLoading)
     })
 
     it('应该正确传递证书列表数据到子组件', () => {
@@ -173,12 +173,12 @@ describe('Dashboard.vue', () => {
       const expiringList = wrapper.findComponent({ name: 'ExpiringCertificatesList' })
       expect(expiringList.exists()).toBe(true)
       expect(expiringList.props('certificates')).toEqual(store.expiringCertificates)
-      expect(expiringList.props('loading')).toBe(store.statsLoading)
+      expect(expiringList.props('loading')).toBe(store.isStatsLoading)
       
       const recentList = wrapper.findComponent({ name: 'RecentCertificatesList' })
       expect(recentList.exists()).toBe(true)
       expect(recentList.props('certificates')).toEqual(store.recentCertificates)
-      expect(recentList.props('loading')).toBe(store.statsLoading)
+      expect(recentList.props('loading')).toBe(store.isStatsLoading)
     })
   })
 

@@ -74,7 +74,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Plus, Clock } from '@element-plus/icons-vue'
 import CertificateStatusBadge from './CertificateStatusBadge.vue'
@@ -87,7 +86,7 @@ dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
 
 // Props
-const props = defineProps({
+defineProps({
   certificates: {
     type: Array,
     default: () => []
