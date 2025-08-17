@@ -64,15 +64,27 @@
       </el-row>
       
       <!-- 搜索结果信息 -->
-      <div v-if="hasSearchQuery || searchLoading" class="search-result-info">
-        <div v-if="searchLoading" class="loading-info">
+      <div
+        v-if="hasSearchQuery || searchLoading"
+        class="search-result-info"
+      >
+        <div
+          v-if="searchLoading"
+          class="loading-info"
+        >
           <el-icon class="is-loading">
             <Loading />
           </el-icon>
           <span>正在搜索...</span>
         </div>
-        <div v-else-if="hasSearchQuery" class="result-info">
-          <el-tag type="info" size="small">
+        <div
+          v-else-if="hasSearchQuery"
+          class="result-info"
+        >
+          <el-tag
+            type="info"
+            size="small"
+          >
             搜索"{{ searchKeyword }}"，找到 {{ filteredCertificates.length }} 个结果
           </el-tag>
           <el-button 
@@ -97,17 +109,32 @@
       <!-- 空状态 -->
       <template #empty>
         <div class="empty-state">
-          <div v-if="hasSearchQuery" class="search-empty">
-            <el-icon size="48" color="#c0c4cc">
+          <div
+            v-if="hasSearchQuery"
+            class="search-empty"
+          >
+            <el-icon
+              size="48"
+              color="#c0c4cc"
+            >
               <Search />
             </el-icon>
             <p>未找到匹配"{{ searchKeyword }}"的证书</p>
-            <el-button type="text" @click="handleClearSearch">
+            <el-button
+              type="text"
+              @click="handleClearSearch"
+            >
               清除搜索条件
             </el-button>
           </div>
-          <div v-else class="data-empty">
-            <el-icon size="48" color="#c0c4cc">
+          <div
+            v-else
+            class="data-empty"
+          >
+            <el-icon
+              size="48"
+              color="#c0c4cc"
+            >
               <Document />
             </el-icon>
             <p>暂无证书数据</p>
@@ -128,8 +155,8 @@
           >
             <span 
               v-if="hasSearchQuery"
-              v-html="getHighlightedName(row.name)"
               class="highlighted-text"
+              v-html="getHighlightedName(row.name)"
             />
             <span v-else>{{ row.name }}</span>
           </el-link>
@@ -144,8 +171,8 @@
         <template #default="{ row }">
           <span 
             v-if="hasSearchQuery"
-            v-html="getHighlightedDomain(row.domain)"
             class="highlighted-text"
+            v-html="getHighlightedDomain(row.domain)"
           />
           <span v-else>{{ row.domain }}</span>
         </template>

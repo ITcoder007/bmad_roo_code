@@ -2,14 +2,25 @@
   <el-card class="stats-card">
     <div class="stats-header">
       <h3>证书概览</h3>
-      <el-icon class="stats-icon"><Document /></el-icon>
+      <el-icon class="stats-icon">
+        <Document />
+      </el-icon>
     </div>
     
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="3" animated />
+    <div
+      v-if="loading"
+      class="loading-container"
+    >
+      <el-skeleton
+        :rows="3"
+        animated
+      />
     </div>
     
-    <div v-else class="stats-content">
+    <div
+      v-else
+      class="stats-content"
+    >
       <!-- 总数显示 -->
       <div class="total-count">
         <span class="count-number">{{ stats.total || 0 }}</span>
@@ -33,7 +44,10 @@
       </div>
       
       <!-- ECharts 饼图 -->
-      <div ref="chartRef" class="chart-container"></div>
+      <div
+        ref="chartRef"
+        class="chart-container"
+      />
     </div>
   </el-card>
 </template>

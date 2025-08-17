@@ -1,14 +1,26 @@
 <template>
   <div class="expiring-certificates-list">
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="4" animated />
+    <div
+      v-if="loading"
+      class="loading-container"
+    >
+      <el-skeleton
+        :rows="4"
+        animated
+      />
     </div>
     
-    <div v-else-if="certificates.length === 0" class="empty-container">
+    <div
+      v-else-if="certificates.length === 0"
+      class="empty-container"
+    >
       <el-empty description="暂无即将过期的证书" />
     </div>
     
-    <div v-else class="certificates-container">
+    <div
+      v-else
+      class="certificates-container"
+    >
       <div class="list-header">
         <span class="count-info">共 {{ certificates.length }} 个证书即将过期</span>
       </div>
@@ -25,9 +37,13 @@
               <span class="name">{{ certificate.name }}</span>
               <CertificateStatusBadge :status="certificate.status" />
             </div>
-            <div class="certificate-domain">{{ certificate.domain }}</div>
+            <div class="certificate-domain">
+              {{ certificate.domain }}
+            </div>
             <div class="certificate-expiry">
-              <el-icon class="expiry-icon"><Clock /></el-icon>
+              <el-icon class="expiry-icon">
+                <Clock />
+              </el-icon>
               <span class="expiry-text">{{ formatExpiryDate(certificate.expiryDate) }}</span>
               <span class="days-left">({{ getDaysLeft(certificate.expiryDate) }}天后到期)</span>
             </div>
@@ -50,7 +66,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { Clock } from '@element-plus/icons-vue'
 import CertificateStatusBadge from './CertificateStatusBadge.vue'

@@ -4,22 +4,22 @@
       v-model="searchQuery"
       :placeholder="placeholder"
       clearable
+      class="search-input"
+      data-testid="search-input"
       @clear="handleClear"
       @keydown.enter="handleSearch"
       @keydown.escape="handleClear"
       @focus="showHistory = true"
       @blur="handleBlur"
-      class="search-input"
-      data-testid="search-input"
     >
       <template #suffix>
         <el-button 
           type="primary" 
           :icon="Search" 
-          @click="handleSearch"
           :loading="loading"
           class="search-button"
           data-testid="search-button"
+          @click="handleSearch"
         >
           搜索
         </el-button>
@@ -36,8 +36,8 @@
         <span>搜索历史</span>
         <el-button 
           type="text" 
-          @click="clearHistory"
           data-testid="clear-history-button"
+          @click="clearHistory"
         >
           清除历史
         </el-button>
@@ -46,11 +46,11 @@
         <el-tag
           v-for="(item, index) in searchHistory"
           :key="index"
-          @click="selectHistoryItem(item)"
           closable
-          @close="removeHistoryItem(index)"
           class="history-tag"
           :data-testid="`history-item-${index}`"
+          @click="selectHistoryItem(item)"
+          @close="removeHistoryItem(index)"
         >
           {{ item }}
         </el-tag>

@@ -1,14 +1,26 @@
 <template>
   <div class="recent-certificates-list">
-    <div v-if="loading" class="loading-container">
-      <el-skeleton :rows="4" animated />
+    <div
+      v-if="loading"
+      class="loading-container"
+    >
+      <el-skeleton
+        :rows="4"
+        animated
+      />
     </div>
     
-    <div v-else-if="certificates.length === 0" class="empty-container">
+    <div
+      v-else-if="certificates.length === 0"
+      class="empty-container"
+    >
       <el-empty description="暂无最近添加的证书" />
     </div>
     
-    <div v-else class="certificates-container">
+    <div
+      v-else
+      class="certificates-container"
+    >
       <div class="list-header">
         <span class="count-info">最近添加的 {{ certificates.length }} 个证书</span>
       </div>
@@ -25,15 +37,21 @@
               <span class="name">{{ certificate.name }}</span>
               <CertificateStatusBadge :status="certificate.status" />
             </div>
-            <div class="certificate-domain">{{ certificate.domain }}</div>
+            <div class="certificate-domain">
+              {{ certificate.domain }}
+            </div>
             <div class="certificate-meta">
               <div class="created-info">
-                <el-icon class="created-icon"><Plus /></el-icon>
+                <el-icon class="created-icon">
+                  <Plus />
+                </el-icon>
                 <span class="created-text">添加于 {{ formatCreatedDate(certificate.createdAt) }}</span>
                 <span class="time-ago">({{ getTimeAgo(certificate.createdAt) }})</span>
               </div>
               <div class="expiry-info">
-                <el-icon class="expiry-icon"><Clock /></el-icon>
+                <el-icon class="expiry-icon">
+                  <Clock />
+                </el-icon>
                 <span class="expiry-text">{{ formatExpiryDate(certificate.expiryDate) }} 到期</span>
               </div>
             </div>

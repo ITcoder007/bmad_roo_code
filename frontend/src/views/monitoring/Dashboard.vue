@@ -5,9 +5,9 @@
       <div class="header-actions">
         <el-button 
           :icon="Refresh" 
-          @click="handleRefresh" 
-          :loading="refreshing"
+          :loading="refreshing" 
           type="primary"
+          @click="handleRefresh"
         >
           刷新数据
         </el-button>
@@ -16,8 +16,16 @@
     </div>
     
     <!-- 统计卡片区域 -->
-    <el-row :gutter="20" class="stats-row">
-      <el-col :xs="24" :sm="12" :md="8" :lg="6">
+    <el-row
+      :gutter="20"
+      class="stats-row"
+    >
+      <el-col
+        :xs="24"
+        :sm="12"
+        :md="8"
+        :lg="6"
+      >
         <CertificateStatsCard 
           :stats="certificateStats" 
           :loading="statsLoading" 
@@ -26,15 +34,26 @@
     </el-row>
     
     <!-- 主要内容区域 -->
-    <el-row :gutter="20" class="content-row">
+    <el-row
+      :gutter="20"
+      class="content-row"
+    >
       <!-- 即将过期证书 -->
-      <el-col :xs="24" :md="12">
+      <el-col
+        :xs="24"
+        :md="12"
+      >
         <el-card>
           <template #header>
             <div class="card-header">
               <span>即将过期证书 (7天内)</span>
               <router-link to="/certificates?filter=expiring">
-                <el-button text type="primary">查看全部</el-button>
+                <el-button
+                  text
+                  type="primary"
+                >
+                  查看全部
+                </el-button>
               </router-link>
             </div>
           </template>
@@ -46,13 +65,21 @@
       </el-col>
       
       <!-- 最近添加证书 -->
-      <el-col :xs="24" :md="12">
+      <el-col
+        :xs="24"
+        :md="12"
+      >
         <el-card>
           <template #header>
             <div class="card-header">
               <span>最近添加证书</span>
               <router-link to="/certificates">
-                <el-button text type="primary">查看全部</el-button>
+                <el-button
+                  text
+                  type="primary"
+                >
+                  查看全部
+                </el-button>
               </router-link>
             </div>
           </template>
