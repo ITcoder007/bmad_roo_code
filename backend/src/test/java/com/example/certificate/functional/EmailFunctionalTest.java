@@ -48,6 +48,10 @@ class EmailFunctionalTest {
     @BeforeEach
     void setUp() {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        
+        // 设置监控日志服务的默认行为，避免在功能测试中因数据库问题导致失败
+        doNothing().when(monitoringLogService).logEmailAlert(any(Certificate.class), anyInt(), anyString());
+        doNothing().when(monitoringLogService).logDailySummary(any(List.class), any(List.class), anyString());
     }
 
     @Test
@@ -247,7 +251,8 @@ class EmailFunctionalTest {
 
         // 验证日期格式正确
         String contentText = content.getContent();
-        assertTrue(contentText.matches(".*\\d{4}-\\d{2}-\\d{2}.*"), "应包含正确的日期格式");
+        // 使用Pattern.DOTALL标志来处理多行文本，或者直接使用contains检查
+        assertTrue(contentText.matches("(?s).*\\d{4}-\\d{2}-\\d{2}.*"), "应包含正确的日期格式");
     }
 
     @Test

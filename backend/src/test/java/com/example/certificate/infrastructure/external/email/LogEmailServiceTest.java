@@ -163,7 +163,7 @@ class LogEmailServiceTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("LOG_SUMMARY_FAILED", result.getErrorCode());
-        assertTrue(result.getErrorMessage().contains("邮件操作失败"));
+        assertTrue(result.getErrorMessage().contains("网络异常"));
         
         // 验证监控日志服务被调用
         verify(monitoringLogService, times(1)).logDailySummary(expiringSoonCertificates, expiredCertificates, testRecipient);

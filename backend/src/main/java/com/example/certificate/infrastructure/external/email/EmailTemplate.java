@@ -61,13 +61,17 @@ public class EmailTemplate {
      */
     private Map<String, String> createExpiryAlertVariables(Certificate certificate, int daysUntilExpiry) {
         Map<String, String> variables = new HashMap<>();
-        variables.put("certificateName", certificate.getName());
-        variables.put("domain", certificate.getDomain());
-        variables.put("expiryDate", DATE_FORMAT.format(certificate.getExpiryDate()));
-        variables.put("issueDate", DATE_FORMAT.format(certificate.getIssueDate()));
+        variables.put("certificateName", certificate.getName() != null ? certificate.getName() : "未知证书");
+        variables.put("domain", certificate.getDomain() != null ? certificate.getDomain() : "未知域名");
+        variables.put("issuer", certificate.getIssuer() != null ? certificate.getIssuer() : "未知颁发机构");
+        variables.put("expiryDate", certificate.getExpiryDate() != null ? 
+                     DATE_FORMAT.format(certificate.getExpiryDate()) : "未知日期");
+        variables.put("issueDate", certificate.getIssueDate() != null ? 
+                     DATE_FORMAT.format(certificate.getIssueDate()) : "未知日期");
         variables.put("daysUntilExpiry", String.valueOf(daysUntilExpiry));
         variables.put("alertType", getAlertTypeByDays(daysUntilExpiry));
-        variables.put("status", certificate.getStatus().toString());
+        variables.put("status", certificate.getStatus() != null ? certificate.getStatus().toString() : "未知状态");
+        variables.put("certificateType", certificate.getCertificateType() != null ? certificate.getCertificateType() : "未知类型");
         variables.put("currentDate", DATE_FORMAT.format(new Date()));
         variables.put("currentDateOnly", DATE_ONLY_FORMAT.format(new Date()));
         return variables;
@@ -112,11 +116,15 @@ public class EmailTemplate {
         }
         
         String result = template;
+        // 先替换已知的变量
         for (Map.Entry<String, String> entry : variables.entrySet()) {
             String placeholder = "{" + entry.getKey() + "}";
             String value = entry.getValue() != null ? entry.getValue() : "";
             result = result.replace(placeholder, value);
         }
+        
+        // 然后将所有剩余的未知变量替换为空字符串
+        result = result.replaceAll("\\{[^}]*\\}", "");
         
         return result;
     }
@@ -125,22 +133,27 @@ public class EmailTemplate {
      * 生成默认的证书过期预警邮件内容
      */
     private EmailContent generateDefaultExpiryAlertContent(Certificate certificate, int daysUntilExpiry) {
-        String subject = String.format("🚨 证书即将过期预警 - %s", certificate.getName());
+        String certName = certificate.getName() != null ? certificate.getName() : "未知证书";
+        String subject = String.format("🚨 证书即将过期预警 - %s", certName);
         
         String content = String.format(
             "尊敬的管理员，\n\n" +
             "证书预警通知：\n\n" +
             "证书名称：%s\n" +
             "证书域名：%s\n" +
+            "颁发机构：%s\n" +
+            "证书类型：%s\n" +
             "到期日期：%s\n" +
             "剩余天数：%d天\n" +
             "预警类型：%s\n\n" +
             "请及时处理证书续期事宜。\n\n" +
             "此邮件由证书生命周期管理系统自动发送。\n" +
             "发送时间：%s",
-            certificate.getName(),
-            certificate.getDomain(),
-            DATE_FORMAT.format(certificate.getExpiryDate()),
+            certName,
+            certificate.getDomain() != null ? certificate.getDomain() : "未知域名",
+            certificate.getIssuer() != null ? certificate.getIssuer() : "未知颁发机构",
+            certificate.getCertificateType() != null ? certificate.getCertificateType() : "未知类型",
+            certificate.getExpiryDate() != null ? DATE_FORMAT.format(certificate.getExpiryDate()) : "未知日期",
             daysUntilExpiry,
             getAlertTypeByDays(daysUntilExpiry),
             DATE_FORMAT.format(new Date())

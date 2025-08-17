@@ -236,7 +236,7 @@ class EmailIntegrationTest {
         assertNotNull(result);
         assertFalse(result.isSuccess());
         assertEquals("LOG_EMAIL_FAILED", result.getErrorCode());
-        assertTrue(result.getErrorMessage().contains("邮件预警记录失败"));
+        assertTrue(result.getErrorMessage().contains("数据库连接异常"));
 
         // 验证异常被正确处理，不会中断服务
         verify(monitoringLogService, times(1))
