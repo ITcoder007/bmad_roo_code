@@ -1,5 +1,8 @@
 <template>
-  <div class="sidebar" :class="{ 'is-collapsed': collapsed }">
+  <div
+    class="sidebar"
+    :class="{ 'is-collapsed': collapsed }"
+  >
     <div class="sidebar-content">
       <!-- 导航菜单 -->
       <el-menu
@@ -12,9 +15,14 @@
         class="sidebar-menu"
       >
         <!-- 仪表板 -->
-        <el-menu-item index="/dashboard" route="/dashboard">
+        <el-menu-item
+          index="/dashboard"
+          route="/dashboard"
+        >
           <el-icon><Odometer /></el-icon>
-          <template #title>仪表板</template>
+          <template #title>
+            仪表板
+          </template>
         </el-menu-item>
         
         <!-- 证书管理 -->
@@ -24,14 +32,24 @@
             <span>证书管理</span>
           </template>
           
-          <el-menu-item index="/certificates" route="/certificates">
+          <el-menu-item
+            index="/certificates"
+            route="/certificates"
+          >
             <el-icon><List /></el-icon>
-            <template #title>证书列表</template>
+            <template #title>
+              证书列表
+            </template>
           </el-menu-item>
           
-          <el-menu-item index="/certificates/add" route="/certificates/add">
+          <el-menu-item
+            index="/certificates/add"
+            route="/certificates/add"
+          >
             <el-icon><Plus /></el-icon>
-            <template #title>添加证书</template>
+            <template #title>
+              添加证书
+            </template>
           </el-menu-item>
         </el-sub-menu>
         
@@ -42,19 +60,34 @@
             <span>监控中心</span>
           </template>
           
-          <el-menu-item index="/monitoring/dashboard" route="/monitoring/dashboard">
+          <el-menu-item
+            index="/monitoring/dashboard"
+            route="/monitoring/dashboard"
+          >
             <el-icon><DataAnalysis /></el-icon>
-            <template #title>监控仪表板</template>
+            <template #title>
+              监控仪表板
+            </template>
           </el-menu-item>
           
-          <el-menu-item index="/monitoring/alerts" route="/monitoring/alerts">
+          <el-menu-item
+            index="/monitoring/alerts"
+            route="/monitoring/alerts"
+          >
             <el-icon><Warning /></el-icon>
-            <template #title>预警信息</template>
+            <template #title>
+              预警信息
+            </template>
           </el-menu-item>
           
-          <el-menu-item index="/monitoring/logs" route="/monitoring/logs">
+          <el-menu-item
+            index="/monitoring/logs"
+            route="/monitoring/logs"
+          >
             <el-icon><DocumentCopy /></el-icon>
-            <template #title>监控日志</template>
+            <template #title>
+              监控日志
+            </template>
           </el-menu-item>
         </el-sub-menu>
         
@@ -65,19 +98,34 @@
             <span>系统管理</span>
           </template>
           
-          <el-menu-item index="/system/users" route="/system/users">
+          <el-menu-item
+            index="/system/users"
+            route="/system/users"
+          >
             <el-icon><User /></el-icon>
-            <template #title>用户管理</template>
+            <template #title>
+              用户管理
+            </template>
           </el-menu-item>
           
-          <el-menu-item index="/system/roles" route="/system/roles">
+          <el-menu-item
+            index="/system/roles"
+            route="/system/roles"
+          >
             <el-icon><UserFilled /></el-icon>
-            <template #title>角色管理</template>
+            <template #title>
+              角色管理
+            </template>
           </el-menu-item>
           
-          <el-menu-item index="/system/settings" route="/system/settings">
+          <el-menu-item
+            index="/system/settings"
+            route="/system/settings"
+          >
             <el-icon><Tools /></el-icon>
-            <template #title>系统设置</template>
+            <template #title>
+              系统设置
+            </template>
           </el-menu-item>
         </el-sub-menu>
       </el-menu>

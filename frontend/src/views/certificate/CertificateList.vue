@@ -3,21 +3,44 @@
     <!-- 筛选区域 -->
     <div class="filter-section">
       <el-row :gutter="16">
-        <el-col :xs="24" :sm="12" :md="8">
+        <el-col
+          :xs="24"
+          :sm="12"
+          :md="8"
+        >
           <el-select 
             v-model="statusFilter" 
             placeholder="筛选状态"
             clearable
             @change="handleStatusChange"
           >
-            <el-option label="全部" value="" />
-            <el-option label="正常" value="NORMAL" />
-            <el-option label="即将过期" value="EXPIRING_SOON" />
-            <el-option label="已过期" value="EXPIRED" />
+            <el-option
+              label="全部"
+              value=""
+            />
+            <el-option
+              label="正常"
+              value="NORMAL"
+            />
+            <el-option
+              label="即将过期"
+              value="EXPIRING_SOON"
+            />
+            <el-option
+              label="已过期"
+              value="EXPIRED"
+            />
           </el-select>
         </el-col>
-        <el-col :xs="24" :sm="12" :md="8">
-          <el-button type="primary" @click="handleRefresh">
+        <el-col
+          :xs="24"
+          :sm="12"
+          :md="8"
+        >
+          <el-button
+            type="primary"
+            @click="handleRefresh"
+          >
             <el-icon><Refresh /></el-icon>
             刷新
           </el-button>
@@ -33,29 +56,52 @@
       stripe
       @sort-change="handleSortChange"
     >
-      <el-table-column prop="name" label="证书名称" sortable min-width="150">
+      <el-table-column
+        prop="name"
+        label="证书名称"
+        sortable
+        min-width="150"
+      >
         <template #default="{ row }">
           <el-link 
             type="primary" 
-            @click="viewDetails(row.id)"
             :underline="false"
+            @click="viewDetails(row.id)"
           >
             {{ row.name }}
           </el-link>
         </template>
       </el-table-column>
       
-      <el-table-column prop="domain" label="域名" min-width="200" />
+      <el-table-column
+        prop="domain"
+        label="域名"
+        min-width="200"
+      />
       
-      <el-table-column prop="issuer" label="颁发机构" min-width="150" />
+      <el-table-column
+        prop="issuer"
+        label="颁发机构"
+        min-width="150"
+      />
       
-      <el-table-column prop="expiryDate" label="到期日期" sortable min-width="120">
+      <el-table-column
+        prop="expiryDate"
+        label="到期日期"
+        sortable
+        min-width="120"
+      >
         <template #default="{ row }">
           {{ formatDate(row.expiryDate) }}
         </template>
       </el-table-column>
       
-      <el-table-column prop="status" label="状态" sortable width="100">
+      <el-table-column
+        prop="status"
+        label="状态"
+        sortable
+        width="100"
+      >
         <template #default="{ row }">
           <el-tag :type="getStatusType(row.status)">
             {{ getStatusText(row.status) }}
@@ -63,12 +109,16 @@
         </template>
       </el-table-column>
       
-      <el-table-column label="操作" width="180" fixed="right">
+      <el-table-column
+        label="操作"
+        width="180"
+        fixed="right"
+      >
         <template #default="{ row }">
           <el-button 
             size="small" 
-            @click="viewDetails(row.id)"
             data-testid="view-details"
+            @click="viewDetails(row.id)"
           >
             查看
           </el-button>

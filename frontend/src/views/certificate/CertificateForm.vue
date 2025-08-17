@@ -2,8 +2,12 @@
   <div class="certificate-form">
     <!-- 页面头部 -->
     <div class="page-header">
-      <h1 class="page-title">{{ isEdit ? '编辑证书' : '添加证书' }}</h1>
-      <p class="page-description">{{ isEdit ? '修改现有证书信息' : '创建新的证书记录' }}</p>
+      <h1 class="page-title">
+        {{ isEdit ? '编辑证书' : '添加证书' }}
+      </h1>
+      <p class="page-description">
+        {{ isEdit ? '修改现有证书信息' : '创建新的证书记录' }}
+      </p>
     </div>
 
     <!-- 表单内容 -->
@@ -14,13 +18,16 @@
           :rules="formRules"
           :submit-loading="submitLoading"
           label-width="120px"
+          :show-cancel="true"
           @submit="handleSubmit"
           @cancel="handleCancel"
-          :show-cancel="true"
         >
           <el-row :gutter="24">
             <el-col :span="12">
-              <el-form-item label="证书名称" prop="name">
+              <el-form-item
+                label="证书名称"
+                prop="name"
+              >
                 <el-input
                   v-model="formData.name"
                   placeholder="请输入证书名称"
@@ -30,7 +37,10 @@
             </el-col>
             
             <el-col :span="12">
-              <el-form-item label="域名" prop="domain">
+              <el-form-item
+                label="域名"
+                prop="domain"
+              >
                 <el-input
                   v-model="formData.domain"
                   placeholder="请输入域名"
@@ -40,7 +50,10 @@
             </el-col>
             
             <el-col :span="12">
-              <el-form-item label="颁发机构" prop="issuer">
+              <el-form-item
+                label="颁发机构"
+                prop="issuer"
+              >
                 <el-input
                   v-model="formData.issuer"
                   placeholder="请输入颁发机构"
@@ -50,22 +63,40 @@
             </el-col>
             
             <el-col :span="12">
-              <el-form-item label="证书类型" prop="certificateType">
+              <el-form-item
+                label="证书类型"
+                prop="certificateType"
+              >
                 <el-select
                   v-model="formData.certificateType"
                   placeholder="请选择证书类型"
                   style="width: 100%"
                 >
-                  <el-option label="SSL/TLS" value="SSL" />
-                  <el-option label="代码签名" value="CODE_SIGNING" />
-                  <el-option label="邮件加密" value="EMAIL" />
-                  <el-option label="客户端认证" value="CLIENT_AUTH" />
+                  <el-option
+                    label="SSL/TLS"
+                    value="SSL"
+                  />
+                  <el-option
+                    label="代码签名"
+                    value="CODE_SIGNING"
+                  />
+                  <el-option
+                    label="邮件加密"
+                    value="EMAIL"
+                  />
+                  <el-option
+                    label="客户端认证"
+                    value="CLIENT_AUTH"
+                  />
                 </el-select>
               </el-form-item>
             </el-col>
             
             <el-col :span="12">
-              <el-form-item label="颁发日期" prop="issueDate">
+              <el-form-item
+                label="颁发日期"
+                prop="issueDate"
+              >
                 <el-date-picker
                   v-model="formData.issueDate"
                   type="date"
@@ -78,7 +109,10 @@
             </el-col>
             
             <el-col :span="12">
-              <el-form-item label="过期日期" prop="expiryDate">
+              <el-form-item
+                label="过期日期"
+                prop="expiryDate"
+              >
                 <el-date-picker
                   v-model="formData.expiryDate"
                   type="date"

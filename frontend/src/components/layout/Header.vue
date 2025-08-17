@@ -7,7 +7,7 @@
           src="/favicon.ico" 
           alt="Logo" 
           class="logo-icon"
-        />
+        >
         <span class="app-title">{{ appConfig.title }}</span>
       </div>
       
@@ -42,7 +42,10 @@
           type="text" 
           class="notification-btn"
         >
-          <el-badge :value="notificationCount" class="notification-badge">
+          <el-badge
+            :value="notificationCount"
+            class="notification-badge"
+          >
             <el-icon><Bell /></el-icon>
           </el-badge>
         </el-button>
@@ -50,7 +53,10 @@
         <!-- 用户下拉菜单 -->
         <el-dropdown class="user-dropdown">
           <span class="user-info">
-            <el-avatar :size="32" class="user-avatar">
+            <el-avatar
+              :size="32"
+              class="user-avatar"
+            >
               <el-icon><User /></el-icon>
             </el-avatar>
             <span class="username">{{ currentUser.name }}</span>

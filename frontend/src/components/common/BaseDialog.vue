@@ -20,7 +20,10 @@
     @closed="handleClosed"
   >
     <!-- 自定义头部 -->
-    <template v-if="$slots.header" #header>
+    <template
+      v-if="$slots.header"
+      #header
+    >
       <slot name="header" />
     </template>
     
@@ -32,7 +35,10 @@
     <!-- 自定义底部 -->
     <template #footer>
       <slot name="footer">
-        <div v-if="showFooter" class="dialog-footer">
+        <div
+          v-if="showFooter"
+          class="dialog-footer"
+        >
           <el-button 
             v-if="showCancel"
             @click="handleCancel"

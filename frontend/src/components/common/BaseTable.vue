@@ -12,7 +12,10 @@
     </el-table>
     
     <!-- 分页组件 -->
-    <div v-if="showPagination" class="pagination-wrapper">
+    <div
+      v-if="showPagination"
+      class="pagination-wrapper"
+    >
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"

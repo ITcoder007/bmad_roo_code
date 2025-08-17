@@ -1,18 +1,37 @@
 <template>
-  <div v-if="visible" class="loading-container" :class="containerClass">
-    <div class="loading-mask" :class="maskClass">
+  <div
+    v-if="visible"
+    class="loading-container"
+    :class="containerClass"
+  >
+    <div
+      class="loading-mask"
+      :class="maskClass"
+    >
       <div class="loading-spinner">
-        <el-icon v-if="icon" class="loading-icon" :class="iconClass">
+        <el-icon
+          v-if="icon"
+          class="loading-icon"
+          :class="iconClass"
+        >
           <component :is="icon" />
         </el-icon>
-        <div v-else class="default-spinner">
+        <div
+          v-else
+          class="default-spinner"
+        >
           <div class="spinner-dots">
-            <div class="dot dot1"></div>
-            <div class="dot dot2"></div>
-            <div class="dot dot3"></div>
+            <div class="dot dot1" />
+            <div class="dot dot2" />
+            <div class="dot dot3" />
           </div>
         </div>
-        <p v-if="text" class="loading-text">{{ text }}</p>
+        <p
+          v-if="text"
+          class="loading-text"
+        >
+          {{ text }}
+        </p>
       </div>
     </div>
   </div>

@@ -1,5 +1,8 @@
 <template>
-  <div class="main-content" :class="{ 'sidebar-collapsed': sidebarCollapsed }">
+  <div
+    class="main-content"
+    :class="{ 'sidebar-collapsed': sidebarCollapsed }"
+  >
     <div class="content-container">
       <!-- 页面内容区域 -->
       <div class="page-content">

@@ -15,7 +15,10 @@
     <slot />
     
     <!-- 默认按钮组 -->
-    <el-form-item v-if="showButtons" class="form-buttons">
+    <el-form-item
+      v-if="showButtons"
+      class="form-buttons"
+    >
       <el-button 
         type="primary" 
         :loading="submitLoading"

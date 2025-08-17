@@ -66,22 +66,22 @@ request.interceptors.response.use(
       const { status, data } = response
       
       switch (status) {
-        case 403:
-          ElMessage.error('没有权限访问此资源')
-          break
+      case 403:
+        ElMessage.error('没有权限访问此资源')
+        break
           
-        case 404:
-          ElMessage.error('请求的资源不存在')
-          break
+      case 404:
+        ElMessage.error('请求的资源不存在')
+        break
           
-        case 500:
-          ElMessage.error('服务器内部错误')
-          break
+      case 500:
+        ElMessage.error('服务器内部错误')
+        break
           
-        default:
-          // 尝试从响应中获取错误消息
-          const errorMessage = data?.message || `请求失败 (${status})`
-          ElMessage.error(errorMessage)
+      default:
+        // 尝试从响应中获取错误消息
+        const errorMessage = data?.message || `请求失败 (${status})`
+        ElMessage.error(errorMessage)
       }
     } else if (error.code === 'ECONNABORTED') {
       ElMessage.error('请求超时，请稍后重试')
