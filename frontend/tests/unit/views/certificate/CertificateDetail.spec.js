@@ -329,7 +329,7 @@ describe('CertificateDetail.vue', () => {
       
       expect(rules.domain).toContainEqual(
         expect.objectContaining({
-          pattern: /^[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)*$/,
+          pattern: /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/,
           message: '请输入有效的域名'
         })
       )

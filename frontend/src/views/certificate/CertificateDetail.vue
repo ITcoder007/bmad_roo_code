@@ -3,7 +3,9 @@
     <!-- 页面标题和导航 -->
     <div class="page-header">
       <el-breadcrumb>
-        <el-breadcrumb-item to="/certificates">证书列表</el-breadcrumb-item>
+        <el-breadcrumb-item to="/certificates">
+          证书列表
+        </el-breadcrumb-item>
         <el-breadcrumb-item>证书详情</el-breadcrumb-item>
       </el-breadcrumb>
       <h1>{{ certificate?.name || '证书详情' }}</h1>
@@ -13,7 +15,10 @@
     <Loading v-if="loading" />
     
     <!-- 证书详情内容 -->
-    <div v-else-if="certificate" class="detail-content">
+    <div
+      v-else-if="certificate"
+      class="detail-content"
+    >
       <!-- 证书状态展示 -->
       <el-card class="status-card">
         <template #header>
@@ -34,17 +39,22 @@
               <el-button 
                 v-if="!editMode" 
                 type="primary" 
-                @click="toggleEditMode"
                 data-testid="edit-button"
+                @click="toggleEditMode"
               >
                 编辑
               </el-button>
-              <el-button v-else @click="cancelEdit">取消</el-button>
+              <el-button
+                v-else
+                @click="cancelEdit"
+              >
+                取消
+              </el-button>
               <el-button 
                 v-if="editMode" 
                 type="primary" 
-                @click="saveChanges"
                 :loading="saving"
+                @click="saveChanges"
               >
                 保存
               </el-button>
@@ -53,16 +63,38 @@
         </template>
         
         <!-- 查看模式 -->
-        <div v-if="!editMode" class="view-mode">
-          <el-descriptions :column="2" border>
-            <el-descriptions-item label="证书名称">{{ certificate.name }}</el-descriptions-item>
-            <el-descriptions-item label="域名">{{ certificate.domain }}</el-descriptions-item>
-            <el-descriptions-item label="颁发机构">{{ certificate.issuer }}</el-descriptions-item>
-            <el-descriptions-item label="证书类型">{{ formatCertificateType(certificate.certificateType) }}</el-descriptions-item>
-            <el-descriptions-item label="颁发日期">{{ formatDate(certificate.issueDate) }}</el-descriptions-item>
-            <el-descriptions-item label="到期日期">{{ formatDate(certificate.expiryDate) }}</el-descriptions-item>
-            <el-descriptions-item label="创建时间">{{ formatDateTime(certificate.createdAt) }}</el-descriptions-item>
-            <el-descriptions-item label="更新时间">{{ formatDateTime(certificate.updatedAt) }}</el-descriptions-item>
+        <div
+          v-if="!editMode"
+          class="view-mode"
+        >
+          <el-descriptions
+            :column="2"
+            border
+          >
+            <el-descriptions-item label="证书名称">
+              {{ certificate.name }}
+            </el-descriptions-item>
+            <el-descriptions-item label="域名">
+              {{ certificate.domain }}
+            </el-descriptions-item>
+            <el-descriptions-item label="颁发机构">
+              {{ certificate.issuer }}
+            </el-descriptions-item>
+            <el-descriptions-item label="证书类型">
+              {{ formatCertificateType(certificate.certificateType) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="颁发日期">
+              {{ formatDate(certificate.issueDate) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="到期日期">
+              {{ formatDate(certificate.expiryDate) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="创建时间">
+              {{ formatDateTime(certificate.createdAt) }}
+            </el-descriptions-item>
+            <el-descriptions-item label="更新时间">
+              {{ formatDateTime(certificate.updatedAt) }}
+            </el-descriptions-item>
           </el-descriptions>
         </div>
         
@@ -76,29 +108,62 @@
         >
           <el-row :gutter="20">
             <el-col :span="12">
-              <el-form-item label="证书名称" prop="name">
-                <el-input v-model="editForm.name" placeholder="请输入证书名称" />
+              <el-form-item
+                label="证书名称"
+                prop="name"
+              >
+                <el-input
+                  v-model="editForm.name"
+                  placeholder="请输入证书名称"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="域名" prop="domain">
-                <el-input v-model="editForm.domain" placeholder="请输入域名" />
+              <el-form-item
+                label="域名"
+                prop="domain"
+              >
+                <el-input
+                  v-model="editForm.domain"
+                  placeholder="请输入域名"
+                />
               </el-form-item>
             </el-col>
           </el-row>
           
           <el-row :gutter="20">
             <el-col :span="12">
-              <el-form-item label="颁发机构" prop="issuer">
-                <el-input v-model="editForm.issuer" placeholder="请输入颁发机构" />
+              <el-form-item
+                label="颁发机构"
+                prop="issuer"
+              >
+                <el-input
+                  v-model="editForm.issuer"
+                  placeholder="请输入颁发机构"
+                />
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="证书类型" prop="certificateType">
-                <el-select v-model="editForm.certificateType" placeholder="请选择证书类型">
-                  <el-option label="SSL/TLS" value="SSL/TLS" />
-                  <el-option label="代码签名" value="CODE_SIGNING" />
-                  <el-option label="邮件加密" value="EMAIL" />
+              <el-form-item
+                label="证书类型"
+                prop="certificateType"
+              >
+                <el-select
+                  v-model="editForm.certificateType"
+                  placeholder="请选择证书类型"
+                >
+                  <el-option
+                    label="SSL/TLS"
+                    value="SSL/TLS"
+                  />
+                  <el-option
+                    label="代码签名"
+                    value="CODE_SIGNING"
+                  />
+                  <el-option
+                    label="邮件加密"
+                    value="EMAIL"
+                  />
                 </el-select>
               </el-form-item>
             </el-col>
@@ -106,7 +171,10 @@
           
           <el-row :gutter="20">
             <el-col :span="12">
-              <el-form-item label="颁发日期" prop="issueDate">
+              <el-form-item
+                label="颁发日期"
+                prop="issueDate"
+              >
                 <el-date-picker 
                   v-model="editForm.issueDate" 
                   type="date" 
@@ -117,7 +185,10 @@
               </el-form-item>
             </el-col>
             <el-col :span="12">
-              <el-form-item label="到期日期" prop="expiryDate">
+              <el-form-item
+                label="到期日期"
+                prop="expiryDate"
+              >
                 <el-date-picker 
                   v-model="editForm.expiryDate" 
                   type="date" 
@@ -133,11 +204,13 @@
       
       <!-- 操作按钮 -->
       <div class="action-buttons">
-        <el-button @click="goBack">返回列表</el-button>
+        <el-button @click="goBack">
+          返回列表
+        </el-button>
         <el-button 
           type="danger" 
-          @click="handleDelete"
           data-testid="delete-button"
+          @click="handleDelete"
         >
           删除证书
         </el-button>
@@ -145,9 +218,17 @@
     </div>
     
     <!-- 错误状态 -->
-    <div v-else class="error-state">
+    <div
+      v-else
+      class="error-state"
+    >
       <el-empty description="证书不存在或加载失败">
-        <el-button type="primary" @click="goBack">返回列表</el-button>
+        <el-button
+          type="primary"
+          @click="goBack"
+        >
+          返回列表
+        </el-button>
       </el-empty>
     </div>
   </div>
@@ -185,7 +266,7 @@ const formRules = {
   domain: [
     { required: true, message: '请输入域名', trigger: 'blur' },
     { 
-      pattern: /^[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)*$/, 
+      pattern: /^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?)*$/, 
       message: '请输入有效的域名', 
       trigger: 'blur' 
     }
@@ -200,7 +281,17 @@ const formRules = {
     { required: true, message: '请选择颁发日期', trigger: 'change' }
   ],
   expiryDate: [
-    { required: true, message: '请选择到期日期', trigger: 'change' }
+    { required: true, message: '请选择到期日期', trigger: 'change' },
+    {
+      validator: (rule, value, callback) => {
+        if (value && editForm.value.issueDate && value <= editForm.value.issueDate) {
+          callback(new Error('到期日期不能早于或等于颁发日期'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
   ]
 }
 
@@ -237,6 +328,12 @@ const saveChanges = async () => {
   try {
     await formRef.value.validate()
     saving.value = true
+    
+    // 验证到期日期不能早于颁发日期
+    if (editForm.value.expiryDate <= editForm.value.issueDate) {
+      ElMessage.error('到期日期不能早于或等于颁发日期')
+      return
+    }
     
     await certificateStore.updateExistingCertificate(certificate.value.id, editForm.value)
     editMode.value = false

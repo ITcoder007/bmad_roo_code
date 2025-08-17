@@ -1,14 +1,22 @@
 <template>
   <div class="certificate-status-badge">
-    <el-tag :type="statusConfig.type" :effect="statusConfig.effect" size="large">
+    <el-tag
+      :type="statusConfig.type"
+      :effect="statusConfig.effect"
+      size="large"
+    >
       <el-icon class="status-icon">
         <component :is="statusConfig.icon" />
       </el-icon>
       <span class="status-text">{{ statusConfig.text }}</span>
     </el-tag>
     <div class="status-details">
-      <p class="days-info">{{ daysInfo }}</p>
-      <p class="expiry-date">到期时间：{{ formatDate(expiryDate) }}</p>
+      <p class="days-info">
+        {{ daysInfo }}
+      </p>
+      <p class="expiry-date">
+        到期时间：{{ formatDate(expiryDate) }}
+      </p>
     </div>
   </div>
 </template>
@@ -34,44 +42,49 @@ const props = defineProps({
   }
 })
 
+// 证书状态常量
+const CERTIFICATE_STATUS = {
+  NORMAL: 'NORMAL',
+  EXPIRING_SOON: 'EXPIRING_SOON',
+  EXPIRED: 'EXPIRED'
+}
+
 // 计算距离到期天数
 const daysToExpiry = computed(() => getDaysFromToday(props.expiryDate))
 
+// 状态配置映射
+const STATUS_CONFIG_MAP = {
+  [CERTIFICATE_STATUS.NORMAL]: {
+    type: 'success',
+    effect: 'dark',
+    icon: CheckCircle,
+    text: '正常',
+    color: '#67C23A'
+  },
+  [CERTIFICATE_STATUS.EXPIRING_SOON]: {
+    type: 'warning',
+    effect: 'dark',
+    icon: WarningFilled,
+    text: '即将过期',
+    color: '#E6A23C'
+  },
+  [CERTIFICATE_STATUS.EXPIRED]: {
+    type: 'danger',
+    effect: 'dark',
+    icon: CircleCloseFilled,
+    text: '已过期',
+    color: '#F56C6C'
+  }
+}
+
 // 状态配置
 const statusConfig = computed(() => {
-  switch (props.status) {
-  case 'NORMAL':
-    return {
-      type: 'success',
-      effect: 'dark',
-      icon: CheckCircle,
-      text: '正常',
-      color: '#67C23A'
-    }
-  case 'EXPIRING_SOON':
-    return {
-      type: 'warning',
-      effect: 'dark',
-      icon: WarningFilled,
-      text: '即将过期',
-      color: '#E6A23C'
-    }
-  case 'EXPIRED':
-    return {
-      type: 'danger',
-      effect: 'dark',
-      icon: CircleCloseFilled,
-      text: '已过期',
-      color: '#F56C6C'
-    }
-  default:
-    return {
-      type: 'info',
-      effect: 'plain',
-      icon: CheckCircle,
-      text: '未知状态',
-      color: '#909399'
-    }
+  return STATUS_CONFIG_MAP[props.status] || {
+    type: 'info',
+    effect: 'plain',
+    icon: CheckCircle,
+    text: '未知状态',
+    color: '#909399'
   }
 })
 

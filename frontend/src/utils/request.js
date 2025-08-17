@@ -78,10 +78,12 @@ request.interceptors.response.use(
         ElMessage.error('服务器内部错误')
         break
           
-      default:
+      default: {
         // 尝试从响应中获取错误消息
         const errorMessage = data?.message || `请求失败 (${status})`
         ElMessage.error(errorMessage)
+        break
+      }
       }
     } else if (error.code === 'ECONNABORTED') {
       ElMessage.error('请求超时，请稍后重试')
