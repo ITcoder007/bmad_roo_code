@@ -91,4 +91,31 @@ public interface CertificateRepository {
      * @return 更新成功的行数
      */
     int updateStatus(Long id, CertificateStatus status);
+    
+    /**
+     * 统计证书总数
+     * @return 证书总数
+     */
+    long count();
+    
+    /**
+     * 根据状态统计证书数量
+     * @param status 证书状态
+     * @return 指定状态的证书数量
+     */
+    long countByStatus(CertificateStatus status);
+    
+    /**
+     * 查找即将过期的证书
+     * @param thresholdDate 阈值日期
+     * @return 即将过期的证书列表
+     */
+    List<Certificate> findExpiringCertificates(Date thresholdDate);
+    
+    /**
+     * 查找最近添加的证书
+     * @param limit 数量限制
+     * @return 最近添加的证书列表
+     */
+    List<Certificate> findRecentCertificates(int limit);
 }

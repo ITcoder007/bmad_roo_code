@@ -7,6 +7,9 @@ import com.example.certificate.service.dto.CertificateCreateDto;
 import com.example.certificate.service.dto.CertificateDto;
 import com.example.certificate.service.dto.CertificateUpdateDto;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 证书服务接口
  * 定义证书管理的核心业务逻辑方法
@@ -93,4 +96,24 @@ public interface CertificateService {
      * @param status 新的证书状态
      */
     void updateCertificateStatus(Long id, CertificateStatus status);
+    
+    /**
+     * 获取仪表板统计信息
+     * @return 统计信息
+     */
+    Map<String, Object> getDashboardStatistics();
+    
+    /**
+     * 获取即将过期的证书
+     * @param days 天数阈值
+     * @return 即将过期的证书列表
+     */
+    List<CertificateDto> getExpiringCertificates(int days);
+    
+    /**
+     * 获取最近添加的证书
+     * @param limit 数量限制
+     * @return 最近添加的证书列表
+     */
+    List<CertificateDto> getRecentCertificates(int limit);
 }

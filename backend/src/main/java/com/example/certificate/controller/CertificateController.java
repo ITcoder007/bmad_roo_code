@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 证书管理控制器
@@ -36,6 +38,87 @@ public class CertificateController {
         logger.info("接收证书创建请求，域名: {}", createDto.getDomain());
         CertificateDto certificate = certificateService.createCertificate(createDto);
         return ApiResponse.success("证书创建成功", certificate);
+    }
+    
+    /**
+     * 获取仪表板统计信息
+     * @return 统计信息
+     */
+    @GetMapping("/dashboard/stats")
+    public ApiResponse<Map<String, Object>> getDashboardStats() {
+        logger.debug("接收仪表板统计查询请求");
+        try {
+            Map<String, Object> stats = certificateService.getDashboardStatistics();
+            return ApiResponse.success(stats);
+        } catch (Exception e) {
+            logger.error("获取仪表板统计失败", e);
+            return ApiResponse.error("获取统计信息失败");
+        }
+    }
+    
+    /**
+     * 获取即将过期的证书
+     * @param days 天数阈值，默认7天
+     * @return 即将过期的证书列表
+     */
+    @GetMapping("/expiring")
+    public ApiResponse<List<CertificateDto>> getExpiringCertificates(
+            @RequestParam(defaultValue = "7") int days) {
+        logger.debug("接收即将过期证书查询请求，天数阈值: {}", days);
+        try {
+            List<CertificateDto> expiringCertificates = certificateService.getExpiringCertificates(days);
+            return ApiResponse.success(expiringCertificates);
+        } catch (Exception e) {
+            logger.error("获取即将过期证书失败", e);
+            return ApiResponse.error("获取即将过期证书失败");
+        }
+    }
+    
+    /**
+     * 获取最近添加的证书
+     * @param limit 数量限制，默认5个
+     * @return 最近添加的证书列表
+     */
+    @GetMapping("/recent")
+    public ApiResponse<List<CertificateDto>> getRecentCertificates(
+            @RequestParam(defaultValue = "5") int limit) {
+        logger.debug("接收最近证书查询请求，数量限制: {}", limit);
+        try {
+            List<CertificateDto> recentCertificates = certificateService.getRecentCertificates(limit);
+            return ApiResponse.success(recentCertificates);
+        } catch (Exception e) {
+            logger.error("获取最近证书失败", e);
+            return ApiResponse.error("获取最近证书失败");
+        }
+    }
+    
+    /**
+     * 根据条件获取证书列表（分页）
+     * @param pageNum 页码，默认1
+     * @param pageSize 每页大小，默认10
+     * @param sortBy 排序字段，默认创建时间
+     * @param sortOrder 排序方向，默认降序
+     * @param status 证书状态筛选
+     * @param domain 域名筛选（模糊搜索）
+     * @param issuer 颁发机构筛选
+     * @return 分页的证书列表
+     */
+    @GetMapping("/search")
+    public ApiResponse<Page<CertificateDto>> searchCertificates(
+            @RequestParam(defaultValue = "1") int pageNum,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "DESC") String sortOrder,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String domain,
+            @RequestParam(required = false) String issuer) {
+        
+        logger.debug("接收证书搜索请求，页码: {}, 每页大小: {}, 状态: {}, 域名: {}, 颁发机构: {}",
+                pageNum, pageSize, status, domain, issuer);
+        
+        Page<CertificateDto> certificatePage = certificateService.getCertificateListWithFilter(
+                pageNum, pageSize, sortBy, sortOrder, status, domain, issuer);
+        return ApiResponse.success(certificatePage);
     }
     
     /**
@@ -71,35 +154,6 @@ public class CertificateController {
     }
     
     /**
-     * 根据条件获取证书列表（分页）
-     * @param pageNum 页码，默认1
-     * @param pageSize 每页大小，默认10
-     * @param sortBy 排序字段，默认创建时间
-     * @param sortOrder 排序方向，默认降序
-     * @param status 证书状态筛选
-     * @param domain 域名筛选（模糊搜索）
-     * @param issuer 颁发机构筛选
-     * @return 分页的证书列表
-     */
-    @GetMapping("/search")
-    public ApiResponse<Page<CertificateDto>> searchCertificates(
-            @RequestParam(defaultValue = "1") int pageNum,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "DESC") String sortOrder,
-            @RequestParam(required = false) String status,
-            @RequestParam(required = false) String domain,
-            @RequestParam(required = false) String issuer) {
-        
-        logger.debug("接收证书搜索请求，页码: {}, 每页大小: {}, 状态: {}, 域名: {}, 颁发机构: {}",
-                pageNum, pageSize, status, domain, issuer);
-        
-        Page<CertificateDto> certificatePage = certificateService.getCertificateListWithFilter(
-                pageNum, pageSize, sortBy, sortOrder, status, domain, issuer);
-        return ApiResponse.success(certificatePage);
-    }
-    
-    /**
      * 更新证书信息
      * @param id 证书ID
      * @param updateDto 证书更新数据
@@ -124,4 +178,5 @@ public class CertificateController {
         certificateService.deleteCertificate(id);
         return ApiResponse.success("证书删除成功");
     }
+    
 }

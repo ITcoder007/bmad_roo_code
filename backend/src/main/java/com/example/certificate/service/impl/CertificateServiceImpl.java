@@ -20,8 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -259,6 +258,81 @@ public class CertificateServiceImpl implements CertificateService {
         } catch (Exception e) {
             logger.error("证书状态更新失败", e);
             throw BusinessException.of(ErrorCode.CERTIFICATE_UPDATE_FAILED, e.getMessage());
+        }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public Map<String, Object> getDashboardStatistics() {
+        logger.debug("获取仪表板统计信息");
+        
+        try {
+            // 获取总证书数
+            long totalCount = certificateRepository.count();
+            
+            // 获取各状态的证书数量
+            long normalCount = certificateRepository.countByStatus(CertificateStatus.NORMAL);
+            long expiringSoonCount = certificateRepository.countByStatus(CertificateStatus.EXPIRING_SOON);
+            long expiredCount = certificateRepository.countByStatus(CertificateStatus.EXPIRED);
+            
+            Map<String, Object> statistics = new HashMap<>();
+            statistics.put("totalCount", totalCount);
+            statistics.put("normalCount", normalCount);
+            statistics.put("expiringSoonCount", expiringSoonCount);
+            statistics.put("expiredCount", expiredCount);
+            
+            logger.debug("统计信息获取成功，总数: {}, 正常: {}, 即将过期: {}, 已过期: {}", 
+                    totalCount, normalCount, expiringSoonCount, expiredCount);
+            
+            return statistics;
+        } catch (Exception e) {
+            logger.error("获取统计信息失败", e);
+            throw BusinessException.of(ErrorCode.INTERNAL_SERVER_ERROR, "获取统计信息失败");
+        }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<CertificateDto> getExpiringCertificates(int days) {
+        logger.debug("获取即将过期的证书，天数阈值: {}", days);
+        
+        try {
+            // 计算阈值日期
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_MONTH, days);
+            Date thresholdDate = calendar.getTime();
+            
+            List<Certificate> expiringCertificates = certificateRepository.findExpiringCertificates(thresholdDate);
+            
+            List<CertificateDto> result = expiringCertificates.stream()
+                    .map(serviceConverter::toDto)
+                    .collect(Collectors.toList());
+            
+            logger.debug("查询到 {} 个即将过期的证书", result.size());
+            return result;
+        } catch (Exception e) {
+            logger.error("获取即将过期证书失败", e);
+            throw BusinessException.of(ErrorCode.INTERNAL_SERVER_ERROR, "获取即将过期证书失败");
+        }
+    }
+    
+    @Override
+    @Transactional(readOnly = true)
+    public List<CertificateDto> getRecentCertificates(int limit) {
+        logger.debug("获取最近添加的证书，数量限制: {}", limit);
+        
+        try {
+            List<Certificate> recentCertificates = certificateRepository.findRecentCertificates(limit);
+            
+            List<CertificateDto> result = recentCertificates.stream()
+                    .map(serviceConverter::toDto)
+                    .collect(Collectors.toList());
+            
+            logger.debug("查询到 {} 个最近添加的证书", result.size());
+            return result;
+        } catch (Exception e) {
+            logger.error("获取最近证书失败", e);
+            throw BusinessException.of(ErrorCode.INTERNAL_SERVER_ERROR, "获取最近证书失败");
         }
     }
     

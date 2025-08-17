@@ -246,6 +246,39 @@ public class CertificateRepositoryImpl implements CertificateRepository {
         return certificateMapper.update(null, updateWrapper);
     }
     
+    @Override
+    public long count() {
+        return certificateMapper.selectCount(null);
+    }
+    
+    @Override
+    public long countByStatus(CertificateStatus status) {
+        QueryWrapper<CertificateEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("status", status.name());
+        return certificateMapper.selectCount(queryWrapper);
+    }
+    
+    @Override
+    public List<Certificate> findExpiringCertificates(Date thresholdDate) {
+        QueryWrapper<CertificateEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.le("expiry_date", thresholdDate)
+                   .in("status", CertificateStatus.NORMAL.name(), CertificateStatus.EXPIRING_SOON.name())
+                   .orderByAsc("expiry_date");
+        
+        List<CertificateEntity> entities = certificateMapper.selectList(queryWrapper);
+        return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<Certificate> findRecentCertificates(int limit) {
+        QueryWrapper<CertificateEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper.orderByDesc("created_at")
+                   .last("LIMIT " + limit);
+        
+        List<CertificateEntity> entities = certificateMapper.selectList(queryWrapper);
+        return entities.stream().map(certificateConverter::toDomain).collect(Collectors.toList());
+    }
+    
     /**
      * 转换排序字段名
      */
