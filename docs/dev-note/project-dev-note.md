@@ -94,8 +94,11 @@ mvn test                       # 3. 最后才跑全量测试
 ### 后端测试失败时的检查顺序
 1. **PotentialStubbingProblem** → Mock参数不匹配 → 使用`anyInt()`等匹配器
 2. **NullPointerException** → 缺少Mock配置 → 检查所有@Mock字段的方法调用
-3. **断言失败** → 检查是否Mock了目标方法本身
-4. **路径错误** → 先`pwd`确认当前目录
+3. **UnfinishedVerificationException** → verify()语法错误 → 检查verify()调用完整性
+4. **InvalidUseOfMatchersException** → ArgumentMatcher位置错误 → 检查argThat()用法
+5. **构造函数参数不匹配** → 新增依赖未同步 → grep找出所有相关测试文件
+6. **断言失败** → 检查是否Mock了目标方法本身
+7. **路径错误** → 先`pwd`确认当前目录
 
 ### 前端开发问题速查
 | 症状 | 原因 | 解决方案 |
@@ -116,6 +119,10 @@ mvn test                       # 3. 最后才跑全量测试
 | 配置值为null | 忘记Mock配置类 | 添加config的Mock |
 | cd命令失败 | 重复进入目录 | 先pwd再决定 |
 | 时间测试不稳定 | 依赖当前时间 | 固定时间基准点 |
+| PotentialStubbingProblem | argThat()复杂对象匹配失败 | 改用any()或eq() |
+| 构造函数参数不匹配 | 新增依赖未更新所有测试 | grep找出相关测试逐一修复 |
+| UnfinishedVerificationException | verify()语法错误或NPE污染 | 检查verify()调用和Mock配置 |
+| 集成测试Mock污染 | 前面测试的stubbing影响后续 | 使用lenient()或reset() |
 
 ## 📋 开发前必查清单
 
@@ -166,6 +173,23 @@ void setUp() {
     // 使用lenient()处理可能不被调用的Mock
     lenient().when(repository.count()).thenReturn(10L);
 }
+```
+
+### 4. 新增依赖时的系统化处理
+```bash
+# 步骤1：查找所有受影响的测试
+grep -r "MonitoringServiceImpl" backend/src/test/ --include="*.java"
+
+# 步骤2：批量添加Mock声明
+# 在每个测试类中添加：
+@Mock private AlertRuleEngine alertRuleEngine;
+
+# 步骤3：更新构造函数或setUp方法
+# 修改所有实例化代码
+monitoringService = new MonitoringServiceImpl(repo, service, config, logService, alertRuleEngine);
+
+# 步骤4：分层验证修复结果
+mvn test -Dtest="*MonitoringService*Test"  # 只测试相关类
 ```
 
 ### 3. 批量修复测试
@@ -240,6 +264,85 @@ void testStatusCalculation(int daysUntilExpiry) {
 - **问题**：`CertificateStatusServiceTest`测试失败
 - **原因**：没有Mock `certificateStatusConfig.getExpiringSoonDays()`
 - **教训**：配置类的方法调用容易被忽略，要特别注意
+
+### 2025-08-17 Story 2.2 预警规则开发复盘
+
+#### 问题1：Mockito严格模式Mock参数不匹配
+- **症状**：`PotentialStubbingProblem: Strict stubbing argument mismatch`
+- **原因**：使用了具体的`argThat(cert -> cert.getId().equals(20L))`但实际调用时参数不完全匹配
+- **教训**：复杂对象比较在Mock验证中经常失败，应优先使用简单匹配器
+- **解决方案**：
+  ```java
+  // ❌ 容易失败：对象属性匹配
+  doThrow().when(service).method(argThat(cert -> cert.getId().equals(20L)));
+  
+  // ✅ 更稳定：使用any()或eq()
+  doThrow().when(service).method(any(Certificate.class));
+  doThrow().when(service).method(eq(specificCertInstance));
+  ```
+
+#### 问题2：集成测试Mock配置污染
+- **症状**：前面测试的Mock配置影响后续测试，导致参数不匹配
+- **原因**：Mockito严格模式下，未使用的stubbing会被标记为潜在错误
+- **教训**：集成测试中Mock配置要么精确匹配，要么使用lenient模式
+- **解决方案**：
+  ```java
+  // 方案1：使用lenient模式
+  lenient().when(mockService).method(any());
+  
+  // 方案2：简化Mock条件
+  when(mockService).method(any()).thenReturn(defaultValue);
+  
+  // 方案3：在@BeforeEach中reset Mock
+  @BeforeEach void setUp() { reset(mockService); }
+  ```
+
+#### 问题3：测试执行策略不当
+- **症状**：一次性运行全量测试，发现多个失败后难以快速定位
+- **原因**：没有按照分层策略逐步验证功能
+- **教训**：新功能开发时应该从单元测试到集成测试逐层验证
+- **最佳实践**：
+  ```bash
+  # 正确的测试执行顺序
+  mvn test -Dtest=AlertRuleEngineTest        # 1. 核心单元测试
+  mvn test -Dtest=AlertRuleConfigServiceTest # 2. 配置服务测试  
+  mvn test -Dtest=AlertRuleIntegrationTest   # 3. 集成测试
+  mvn test -Dtest="*AlertRule*"              # 4. 相关功能全量测试
+  mvn test                                   # 5. 最后才跑完整测试
+  ```
+
+#### 问题4：测试命名和组织缺乏系统性
+- **症状**：测试文件命名不一致，难以快速找到相关测试
+- **原因**：没有统一的测试命名规范
+- **教训**：测试命名应该反映测试层级和功能范围
+- **规范**：
+  ```java
+  // 单元测试：XxxTest.java
+  AlertRuleEngineTest.java         // 测试AlertRuleEngine的业务逻辑
+  AlertRuleConfigServiceTest.java  // 测试配置服务CRUD操作
+  
+  // 集成测试：XxxIntegrationTest.java  
+  AlertRuleIntegrationTest.java    // 测试组件间协作
+  
+  // 功能测试：XxxFunctionalTest.java
+  MonitoringServiceFunctionalTest.java // 测试完整业务流程
+  ```
+
+#### 问题5：Mock依赖分析不够系统化
+- **症状**：漏Mock了`AlertRuleEngine`依赖，导致构造函数参数不匹配
+- **原因**：添加新依赖时，忘记在所有相关测试中添加对应的Mock
+- **教训**：每次修改构造函数时，要系统性检查所有相关测试
+- **解决流程**：
+  ```bash
+  # 1. 找出所有需要更新的测试文件
+  grep -r "MonitoringServiceImpl" backend/src/test/
+  
+  # 2. 逐个文件添加新的Mock依赖
+  @Mock private AlertRuleEngine alertRuleEngine;
+  
+  # 3. 在setUp()或构造函数调用中添加新参数
+  monitoringService = new MonitoringServiceImpl(..., alertRuleEngine);
+  ```
 
 ---
 
