@@ -9,7 +9,8 @@ import {
   createCertificate,
   updateCertificate,
   deleteCertificate,
-  getCertificateStatistics
+  getCertificateStatistics,
+  searchCertificates as apiSearchCertificates
 } from '@/api/certificate'
 
 export const useCertificateStore = defineStore('certificate', () => {
@@ -31,8 +32,12 @@ export const useCertificateStore = defineStore('certificate', () => {
   const searchParams = ref({
     keyword: '',
     status: '',
-    sort: ''
+    sort: '',
+    search: ''  // 新增搜索字段
   })
+  const searchLoading = ref(false)
+  const searchResults = ref([])
+  const lastSearchQuery = ref('')
   const sortConfig = ref({
     prop: '',
     order: ''
@@ -44,6 +49,14 @@ export const useCertificateStore = defineStore('certificate', () => {
   const paginationInfo = computed(() => pagination.value)
   const searchFilter = computed(() => searchParams.value)
   const statsData = computed(() => statistics.value)
+  
+  // 搜索相关计算属性
+  const hasSearchQuery = computed(() => searchParams.value.search.trim() !== '')
+  const isSearching = computed(() => searchLoading.value)
+  const searchResultsCount = computed(() => searchResults.value.length)
+  const displayCertificates = computed(() => {
+    return hasSearchQuery.value ? searchResults.value : certificates.value
+  })
 
   // 获取证书列表
   const fetchCertificateList = async (params = {}) => {
@@ -176,13 +189,85 @@ export const useCertificateStore = defineStore('certificate', () => {
     pagination.value = { ...pagination.value, ...params }
   }
 
+  // 搜索证书
+  const searchCertificates = async (query, useApi = false) => {
+    if (!query || query.trim() === '') {
+      clearSearch()
+      return
+    }
+    
+    try {
+      searchLoading.value = true
+      lastSearchQuery.value = query.trim()
+      searchParams.value.search = query.trim()
+      
+      if (useApi) {
+        // 使用后端API搜索
+        const searchOptions = {
+          page: pagination.value.page,
+          size: pagination.value.size,
+          status: searchParams.value.status,
+          sort: searchParams.value.sort
+        }
+        
+        const result = await apiSearchCertificates(query.trim(), searchOptions)
+        
+        // 避免过时请求覆盖新结果
+        if (query.trim() === lastSearchQuery.value) {
+          searchResults.value = result.data || []
+          pagination.value.total = result.total || 0
+        }
+      } else {
+        // 执行本地搜索（前端过滤）
+        const keyword = query.trim().toLowerCase()
+        const results = certificates.value.filter(cert => {
+          return (
+            (cert.name && cert.name.toLowerCase().includes(keyword)) ||
+            (cert.domain && cert.domain.toLowerCase().includes(keyword))
+          )
+        })
+        
+        // 避免过时请求覆盖新结果
+        if (query.trim() === lastSearchQuery.value) {
+          searchResults.value = results
+        }
+      }
+    } catch (error) {
+      console.error('搜索证书失败:', error)
+      searchResults.value = []
+      throw error
+    } finally {
+      searchLoading.value = false
+    }
+  }
+  
+  // 清除搜索
+  const clearSearch = () => {
+    searchParams.value.search = ''
+    searchResults.value = []
+    lastSearchQuery.value = ''
+    searchLoading.value = false
+  }
+  
+  // 更新搜索查询
+  const updateSearchQuery = (query) => {
+    if (!query || query.trim() === '') {
+      clearSearch()
+    } else {
+      searchParams.value.search = query.trim()
+    }
+  }
+
   // 重置搜索条件
   const resetSearchParams = () => {
     searchParams.value = {
       keyword: '',
       status: '',
-      sort: ''
+      sort: '',
+      search: ''
     }
+    searchResults.value = []
+    lastSearchQuery.value = ''
     pagination.value.page = 1
   }
 
@@ -213,6 +298,9 @@ export const useCertificateStore = defineStore('certificate', () => {
     pagination,
     searchParams,
     sortConfig,
+    searchLoading,
+    searchResults,
+    lastSearchQuery,
     
     // 计算属性
     certificateList,
@@ -220,6 +308,10 @@ export const useCertificateStore = defineStore('certificate', () => {
     paginationInfo,
     searchFilter,
     statsData,
+    hasSearchQuery,
+    isSearching,
+    searchResultsCount,
+    displayCertificates,
     
     // 方法
     fetchCertificateList,
@@ -233,6 +325,9 @@ export const useCertificateStore = defineStore('certificate', () => {
     resetSearchParams,
     setSortConfig,
     clearCurrentCertificate,
-    refreshData
+    refreshData,
+    searchCertificates,
+    clearSearch,
+    updateSearchQuery
   }
 })

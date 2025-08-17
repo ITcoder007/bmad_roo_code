@@ -1,12 +1,27 @@
 <template>
   <div class="certificate-list">
-    <!-- 筛选区域 -->
+    <!-- 搜索和筛选区域 -->
     <div class="filter-section">
       <el-row :gutter="16">
+        <!-- 搜索组件 -->
+        <el-col
+          :xs="24"
+          :sm="24"
+          :md="12"
+          :lg="8"
+        >
+          <CertificateSearchBox
+            v-model="searchKeyword"
+            :loading="searchLoading"
+            @search="handleSearch"
+            @clear="handleClearSearch"
+          />
+        </el-col>
         <el-col
           :xs="24"
           :sm="12"
-          :md="8"
+          :md="6"
+          :lg="4"
         >
           <el-select 
             v-model="statusFilter" 
@@ -35,7 +50,8 @@
         <el-col
           :xs="24"
           :sm="12"
-          :md="8"
+          :md="6"
+          :lg="4"
         >
           <el-button
             type="primary"
@@ -46,16 +62,58 @@
           </el-button>
         </el-col>
       </el-row>
+      
+      <!-- 搜索结果信息 -->
+      <div v-if="hasSearchQuery || searchLoading" class="search-result-info">
+        <div v-if="searchLoading" class="loading-info">
+          <el-icon class="is-loading">
+            <Loading />
+          </el-icon>
+          <span>正在搜索...</span>
+        </div>
+        <div v-else-if="hasSearchQuery" class="result-info">
+          <el-tag type="info" size="small">
+            搜索"{{ searchKeyword }}"，找到 {{ filteredCertificates.length }} 个结果
+          </el-tag>
+          <el-button 
+            type="text" 
+            size="small" 
+            @click="handleClearSearch"
+          >
+            清除搜索
+          </el-button>
+        </div>
+      </div>
     </div>
     
     <!-- 表格区域 -->
     <BaseTable
       :data="paginatedCertificates"
-      :loading="loading"
+      :loading="loading || searchLoading"
       border
       stripe
       @sort-change="handleSortChange"
     >
+      <!-- 空状态 -->
+      <template #empty>
+        <div class="empty-state">
+          <div v-if="hasSearchQuery" class="search-empty">
+            <el-icon size="48" color="#c0c4cc">
+              <Search />
+            </el-icon>
+            <p>未找到匹配"{{ searchKeyword }}"的证书</p>
+            <el-button type="text" @click="handleClearSearch">
+              清除搜索条件
+            </el-button>
+          </div>
+          <div v-else class="data-empty">
+            <el-icon size="48" color="#c0c4cc">
+              <Document />
+            </el-icon>
+            <p>暂无证书数据</p>
+          </div>
+        </div>
+      </template>
       <el-table-column
         prop="name"
         label="证书名称"
@@ -68,7 +126,12 @@
             :underline="false"
             @click="viewDetails(row.id)"
           >
-            {{ row.name }}
+            <span 
+              v-if="hasSearchQuery"
+              v-html="getHighlightedName(row.name)"
+              class="highlighted-text"
+            />
+            <span v-else>{{ row.name }}</span>
           </el-link>
         </template>
       </el-table-column>
@@ -77,7 +140,16 @@
         prop="domain"
         label="域名"
         min-width="200"
-      />
+      >
+        <template #default="{ row }">
+          <span 
+            v-if="hasSearchQuery"
+            v-html="getHighlightedDomain(row.domain)"
+            class="highlighted-text"
+          />
+          <span v-else>{{ row.domain }}</span>
+        </template>
+      </el-table-column>
       
       <el-table-column
         prop="issuer"
@@ -155,25 +227,54 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Refresh } from '@element-plus/icons-vue'
+import { Refresh, Loading, Search, Document } from '@element-plus/icons-vue'
 import { useCertificateStore } from '@/stores/modules/certificate'
 import BaseTable from '@/components/common/BaseTable.vue'
+import CertificateSearchBox from '@/components/business/CertificateSearchBox.vue'
+import { smartHighlight } from '@/utils/highlight'
+import { useSearchUrlSync } from '@/composables/useUrlSync'
 
 const router = useRouter()
 const certificateStore = useCertificateStore()
 
+// URL 同步
+const {
+  searchQuery: searchKeyword,
+  statusFilter,
+  currentPage,
+  updateSearch: urlUpdateSearch,
+  updateStatus: urlUpdateStatus,
+  updatePage: urlUpdatePage,
+  clearSearch: urlClearSearch
+} = useSearchUrlSync()
+
 // 响应式数据
 const loading = ref(false)
-const statusFilter = ref('')
-const currentPage = ref(1)
+const searchLoading = ref(false)
 const pageSize = ref(20)
 
 // 计算属性
+const hasSearchQuery = computed(() => searchKeyword.value.trim() !== '')
+
 const filteredCertificates = computed(() => {
   let certificates = certificateStore.certificates
+  
+  // 搜索过滤
+  if (searchKeyword.value.trim()) {
+    const keyword = searchKeyword.value.trim().toLowerCase()
+    certificates = certificates.filter(cert => {
+      return (
+        (cert.name && cert.name.toLowerCase().includes(keyword)) ||
+        (cert.domain && cert.domain.toLowerCase().includes(keyword))
+      )
+    })
+  }
+  
+  // 状态过滤
   if (statusFilter.value) {
     certificates = certificates.filter(cert => cert.status === statusFilter.value)
   }
+  
   return certificates
 })
 
@@ -246,6 +347,22 @@ const getStatusText = (status) => {
   return textMap[status] || '未知'
 }
 
+// 高亮显示文本
+const highlightSearchText = (text, keyword) => {
+  if (!keyword || !text) return text
+  return smartHighlight(text, keyword, 'search-highlight')
+}
+
+// 获取高亮后的证书名称
+const getHighlightedName = (name) => {
+  return highlightSearchText(name, searchKeyword.value)
+}
+
+// 获取高亮后的域名
+const getHighlightedDomain = (domain) => {
+  return highlightSearchText(domain, searchKeyword.value)
+}
+
 // 事件处理
 const handleRefresh = () => {
   loadCertificates()
@@ -281,12 +398,29 @@ const deleteCertificate = async (id) => {
   }
 }
 
+const handleSearch = async (keyword) => {
+  urlUpdateSearch(keyword)
+  try {
+    searchLoading.value = true
+    await certificateStore.searchCertificates(keyword)
+  } catch (error) {
+    ElMessage.error('搜索失败')
+  } finally {
+    searchLoading.value = false
+  }
+}
+
+const handleClearSearch = () => {
+  urlClearSearch()
+  certificateStore.clearSearch()
+}
+
 const handleStatusChange = () => {
-  currentPage.value = 1
+  urlUpdateStatus(statusFilter.value)
 }
 
 const handlePageChange = (page) => {
-  currentPage.value = page
+  urlUpdatePage(page)
 }
 
 // 生命周期
@@ -306,6 +440,65 @@ onMounted(() => {
   background: #fff;
   border-radius: 6px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.search-result-info {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 搜索高亮样式 */
+:deep(.search-highlight) {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(255, 193, 7, 0.2);
+}
+
+.highlighted-text {
+  line-height: 1.4;
+}
+
+/* 加载和搜索状态样式 */
+.loading-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #909399;
+  font-size: 14px;
+}
+
+.result-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 空状态样式 */
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+}
+
+.search-empty,
+.data-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.search-empty p,
+.data-empty p {
+  margin: 0;
+  color: #909399;
+  font-size: 14px;
 }
 
 .el-pagination {

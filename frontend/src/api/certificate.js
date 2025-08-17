@@ -11,7 +11,8 @@ const API_PREFIX = '/certificates'
  * @param {object} params 查询参数
  * @param {number} params.page 页码
  * @param {number} params.size 每页大小
- * @param {string} params.keyword 关键词搜索
+ * @param {string} params.keyword 关键词搜索（向后兼容）
+ * @param {string} params.search 搜索关键词（按证书名称和域名搜索）
  * @param {string} params.status 证书状态
  * @param {string} params.sort 排序字段
  * @returns {Promise} 证书列表
@@ -157,4 +158,39 @@ export function getExpiringCertificates(days = 30) {
  */
 export function validateCertificate(data) {
   return http.post(`${API_PREFIX}/validate`, data)
+}
+
+/**
+ * 搜索证书
+ * @param {string} query 搜索查询
+ * @param {object} options 搜索选项
+ * @param {number} options.page 页码
+ * @param {number} options.size 每页大小
+ * @param {string} options.status 状态筛选
+ * @param {string} options.sort 排序字段
+ * @returns {Promise} 搜索结果
+ */
+export function searchCertificates(query, options = {}) {
+  const { page = 1, size = 20, status, sort } = options
+  
+  return http.get(API_PREFIX, {
+    search: query,
+    page,
+    size,
+    status,
+    sort
+  })
+}
+
+/**
+ * 获取搜索建议
+ * @param {string} query 搜索查询
+ * @param {number} limit 结果限制
+ * @returns {Promise} 搜索建议列表
+ */
+export function getCertificateSearchSuggestions(query, limit = 5) {
+  return http.get(`${API_PREFIX}/suggestions`, {
+    q: query,
+    limit
+  })
 }

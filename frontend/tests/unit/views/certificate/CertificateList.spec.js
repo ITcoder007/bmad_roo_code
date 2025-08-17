@@ -8,10 +8,18 @@ import { useCertificateStore } from '@/stores/modules/certificate'
 
 // Mock vue-router
 const mockPush = vi.fn()
+const mockReplace = vi.fn()
+const mockRoute = {
+  query: {},
+  path: '/certificates'
+}
+
 vi.mock('vue-router', () => ({
   useRouter: () => ({
-    push: mockPush
-  })
+    push: mockPush,
+    replace: mockReplace
+  }),
+  useRoute: () => mockRoute
 }))
 
 // Mock Element Plus 消息组件
@@ -28,6 +36,21 @@ vi.mock('element-plus', async (importOriginal) => {
     }
   }
 })
+
+// Mock CertificateSearchBox 组件
+vi.mock('@/components/business/CertificateSearchBox.vue', () => ({
+  default: {
+    name: 'CertificateSearchBox',
+    template: '<div class="certificate-search-box-mock"></div>',
+    props: ['modelValue', 'loading'],
+    emits: ['update:modelValue', 'search', 'clear']
+  }
+}))
+
+// Mock highlight utilities
+vi.mock('@/utils/highlight', () => ({
+  smartHighlight: vi.fn((text, query) => text)
+}))
 
 describe('CertificateList.vue', () => {
   let wrapper
