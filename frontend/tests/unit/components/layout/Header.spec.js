@@ -1,20 +1,29 @@
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi } from 'vitest'
 import Header from '@/components/layout/Header.vue'
-import { createRouter, createWebHistory } from 'vue-router'
 import ElementPlus from 'element-plus'
 
-// 创建测试路由
-const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    { path: '/', component: { template: '<div>Home</div>' } }
-  ]
+// 创建 mock 函数
+const mockPush = vi.fn()
+const mockRouter = { push: mockPush }
+const mockRoute = { 
+  path: '/', 
+  matched: [{ meta: { title: '首页' }, path: '/' }] 
+}
+
+// Mock vue-router hooks
+vi.mock('vue-router', async () => {
+  const actual = await vi.importActual('vue-router')
+  return {
+    ...actual,
+    useRouter: () => mockRouter,
+    useRoute: () => mockRoute
+  }
 })
 
 // Mock 全局配置
 const global = {
-  plugins: [router, ElementPlus],
+  plugins: [ElementPlus],
   provide: {
     appConfig: {
       title: '测试应用',
@@ -54,23 +63,18 @@ describe('Header.vue', () => {
   })
 
   it('handles user dropdown menu actions', async () => {
-    const mockPush = vi.fn()
-    
-    // Mock useRouter hook
-    vi.mock('vue-router', async () => {
-      const actual = await vi.importActual('vue-router')
-      return {
-        ...actual,
-        useRouter: () => ({ push: mockPush }),
-        useRoute: () => ({ path: '/', matched: [] })
-      }
-    })
-    
     const wrapper = mount(Header, { global })
 
+    // 清空之前的调用记录
+    mockPush.mockClear()
+    
     // Test profile action by calling the method directly
     await wrapper.vm.handleProfile()
+    expect(mockPush).toHaveBeenCalledWith('/profile')
+    
+    // Test settings action
     await wrapper.vm.handleSettings()
+    expect(mockPush).toHaveBeenCalledWith('/system/settings')
     
     // Check that the component exists and methods are callable
     expect(wrapper.findComponent(Header).exists()).toBe(true)

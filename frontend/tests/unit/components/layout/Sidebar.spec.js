@@ -67,9 +67,11 @@ describe('Sidebar.vue', () => {
     // Check if component renders correctly
     expect(wrapper.findComponent(Sidebar).exists()).toBe(true)
     
-    // Check for dashboard route in the HTML
-    expect(wrapper.html()).toContain('/dashboard')
+    // Check for menu text content (which is always rendered)
     expect(wrapper.html()).toContain('仪表板')
+    expect(wrapper.html()).toContain('证书管理')
+    expect(wrapper.html()).toContain('监控中心')
+    expect(wrapper.html()).toContain('系统管理')
   })
 
   it('shows correct active menu based on current route', async () => {
