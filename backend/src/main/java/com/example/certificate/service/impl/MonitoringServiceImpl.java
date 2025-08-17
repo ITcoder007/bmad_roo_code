@@ -10,8 +10,11 @@ import com.example.certificate.service.MonitoringService;
 import com.example.certificate.service.MonitoringLogService;
 import com.example.certificate.service.AlertRuleEngine;
 import com.example.certificate.service.EmailService;
+import com.example.certificate.service.SmsService;
 import com.example.certificate.service.dto.EmailResult;
+import com.example.certificate.service.dto.SmsResult;
 import com.example.certificate.config.EmailConfig;
+import com.example.certificate.config.SmsConfig;
 import com.example.certificate.domain.model.AlertRule;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +37,9 @@ public class MonitoringServiceImpl implements MonitoringService {
     private final MonitoringLogService monitoringLogService;
     private final AlertRuleEngine alertRuleEngine;
     private final EmailService emailService;
+    private final SmsService smsService;
     private final EmailConfig emailConfig;
+    private final SmsConfig smsConfig;
     
     @Override
     public void monitorAllCertificates() {
@@ -214,12 +219,24 @@ public class MonitoringServiceImpl implements MonitoringService {
      */
     private void sendSmsAlert(Certificate certificate, int daysUntilExpiry, AlertRule rule) {
         try {
-            // MVP阶段暂未实现短信服务，仅记录日志
-            log.info("📱 短信预警触发 - 证书: {}, 剩余天数: {}天, 规则: {} (MVP阶段，仅记录日志)",
-                    certificate.getName(), daysUntilExpiry, rule.getName());
+            // 检查短信功能是否启用
+            if (!smsConfig.isEnabled()) {
+                log.debug("短信功能未启用，跳过短信预警");
+                return;
+            }
             
-            // TODO: 在后续版本中实现真实的短信发送服务
-            // SmsResult result = smsService.sendExpiryAlertSms(certificate, daysUntilExpiry, recipient);
+            String recipient = smsConfig.getDefaultRecipient();
+            
+            // 发送短信预警
+            SmsResult result = smsService.sendExpiryAlertSms(certificate, daysUntilExpiry, recipient);
+            
+            if (result.isSuccess()) {
+                log.info("✅ 短信预警发送成功 - 证书: {}, 收件人: {}, 模式: {}", 
+                        certificate.getName(), smsConfig.maskPhoneNumber(recipient), smsConfig.getMode());
+            } else {
+                log.warn("⚠️ 短信预警发送失败 - 证书: {}, 错误: {}", 
+                        certificate.getName(), result.getErrorMessage());
+            }
             
         } catch (Exception e) {
             log.error("发送短信预警时发生异常 - 证书: {}, 错误: {}", 

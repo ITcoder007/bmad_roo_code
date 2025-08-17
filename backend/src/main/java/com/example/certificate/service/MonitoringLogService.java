@@ -47,4 +47,24 @@ public interface MonitoringLogService {
     void logDailySummary(List<Certificate> expiringSoonCertificates, 
                         List<Certificate> expiredCertificates, 
                         String recipient);
+    
+    /**
+     * 记录短信预警日志
+     * 
+     * @param certificate 证书信息
+     * @param daysUntilExpiry 距离过期的天数
+     * @param recipient 收件人手机号
+     */
+    void logSmsAlert(Certificate certificate, int daysUntilExpiry, String recipient);
+    
+    /**
+     * 记录短信每日摘要日志
+     * 
+     * @param expiringSoonCertificates 即将过期的证书列表
+     * @param expiredCertificates 已过期的证书列表
+     * @param recipient 收件人手机号
+     */
+    void logSmsDailySummary(List<Certificate> expiringSoonCertificates, 
+                           List<Certificate> expiredCertificates, 
+                           String recipient);
 }

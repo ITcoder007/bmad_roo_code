@@ -122,4 +122,76 @@ public class MonitoringLogServiceImpl implements MonitoringLogService {
             logEmailAlert(cert, (int) cert.getDaysUntilExpiry(), recipient);
         }
     }
+    
+    @Override
+    public void logSmsAlert(Certificate certificate, int daysUntilExpiry, String recipient) {
+        log.info("记录短信预警日志: 证书 {} 发送给 {}, 剩余 {} 天", 
+                certificate.getName(), recipient, daysUntilExpiry);
+        
+        // 对手机号进行脱敏处理
+        String maskedPhone = maskPhoneNumber(recipient);
+        String message = String.format("短信预警 - 证书: %s (域名: %s)，剩余天数: %d，收件人: %s", 
+                certificate.getName(), 
+                certificate.getDomain(), 
+                daysUntilExpiry,
+                maskedPhone);
+        
+        MonitoringLog monitoringLog = MonitoringLog.builder()
+                .certificateId(certificate.getId())
+                .logType(LogType.ALERT_SMS)
+                .logTime(new Date())
+                .message(message)
+                .daysUntilExpiry(daysUntilExpiry)
+                .createdAt(new Date())
+                .build();
+        
+        monitoringLogRepository.save(monitoringLog);
+    }
+    
+    @Override
+    public void logSmsDailySummary(List<Certificate> expiringSoonCertificates, 
+                                  List<Certificate> expiredCertificates, 
+                                  String recipient) {
+        log.info("记录短信每日摘要日志: 即将过期 {} 个，已过期 {} 个，收件人: {}", 
+                expiringSoonCertificates.size(), expiredCertificates.size(), recipient);
+        
+        // 对手机号进行脱敏处理
+        String maskedPhone = maskPhoneNumber(recipient);
+        String message = String.format("短信每日摘要 - 即将过期证书: %d个，已过期证书: %d个，收件人: %s", 
+                expiringSoonCertificates.size(), 
+                expiredCertificates.size(),
+                maskedPhone);
+        
+        MonitoringLog monitoringLog = MonitoringLog.builder()
+                .certificateId(null) // 摘要日志不关联特定证书
+                .logType(LogType.ALERT_SMS)
+                .logTime(new Date())
+                .message(message)
+                .createdAt(new Date())
+                .build();
+        
+        monitoringLogRepository.save(monitoringLog);
+        
+        // 为每个即将过期的证书单独记录日志
+        for (Certificate cert : expiringSoonCertificates) {
+            logSmsAlert(cert, (int) cert.getDaysUntilExpiry(), recipient);
+        }
+        
+        // 为每个已过期的证书单独记录日志
+        for (Certificate cert : expiredCertificates) {
+            logSmsAlert(cert, (int) cert.getDaysUntilExpiry(), recipient);
+        }
+    }
+    
+    /**
+     * 手机号脱敏处理
+     * 将 13812345678 转换为 138****5678
+     */
+    private String maskPhoneNumber(String phone) {
+        if (phone == null || phone.length() != 11) {
+            return phone;
+        }
+        
+        return phone.substring(0, 3) + "****" + phone.substring(7);
+    }
 }

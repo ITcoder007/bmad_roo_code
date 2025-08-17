@@ -143,3 +143,53 @@ alert:
       daily-limit: ${ALERT_EMAIL_DAILY_LIMIT:10000}
       send-interval: ${ALERT_EMAIL_SEND_INTERVAL:1000}
       rate-limit-enabled: ${ALERT_EMAIL_RATE_LIMIT:true}
+
+  # 短信预警配置
+  sms:
+    # 是否启用短信功能
+    enabled: ${ALERT_SMS_ENABLED:true}
+    # 短信发送模式：log（日志模式）或 real（真实发送模式）
+    mode: ${ALERT_SMS_MODE:log}
+    # 默认收件人手机号
+    default-recipient: ${ALERT_SMS_DEFAULT_RECIPIENT:13800138000}
+    
+    # 短信服务提供商配置（真实发送模式使用）
+    provider:
+      name: ${ALERT_SMS_PROVIDER:aliyun}
+      access-key: ${ALERT_SMS_ACCESS_KEY:}
+      secret-key: ${ALERT_SMS_SECRET_KEY:}
+      endpoint: ${ALERT_SMS_ENDPOINT:}
+      signature: ${ALERT_SMS_SIGNATURE:证书管理系统}
+      connection-timeout: ${ALERT_SMS_CONN_TIMEOUT:30000}
+      read-timeout: ${ALERT_SMS_READ_TIMEOUT:30000}
+      retry-count: ${ALERT_SMS_RETRY_COUNT:3}
+    
+    # 短信模板配置
+    templates:
+      expiry-alert:
+        template-code: ${ALERT_SMS_EXPIRY_TEMPLATE_CODE:SMS_001}
+        signature: ${ALERT_SMS_EXPIRY_SIGNATURE:证书管理系统}
+        content: "【证书管理】证书{certificateName}将在{daysUntilExpiry}天后过期，请及时处理。"
+        enabled: true
+        variables:
+          certificateName: "certificateName"
+          daysUntilExpiry: "daysUntilExpiry"
+      
+      daily-summary:
+        template-code: ${ALERT_SMS_SUMMARY_TEMPLATE_CODE:SMS_002}
+        signature: ${ALERT_SMS_SUMMARY_SIGNATURE:证书管理系统}
+        content: "【证书管理】今日摘要：即将过期{expiringSoonCount}个，已过期{expiredCount}个证书。"
+        enabled: true
+        variables:
+          expiringSoonCount: "expiringSoonCount"
+          expiredCount: "expiredCount"
+    
+    # 发送限制配置
+    limits:
+      max-batch-size: ${ALERT_SMS_MAX_BATCH_SIZE:50}
+      hourly-limit: ${ALERT_SMS_HOURLY_LIMIT:500}
+      daily-limit: ${ALERT_SMS_DAILY_LIMIT:2000}
+      send-interval: ${ALERT_SMS_SEND_INTERVAL:2000}
+      rate-limit-enabled: ${ALERT_SMS_RATE_LIMIT:true}
+      max-sms-length: ${ALERT_SMS_MAX_LENGTH:70}
+      max-long-sms-length: ${ALERT_SMS_MAX_LONG_LENGTH:500}
