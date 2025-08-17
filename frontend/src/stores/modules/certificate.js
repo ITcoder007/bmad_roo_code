@@ -72,7 +72,7 @@ export const useCertificateStore = defineStore('certificate', () => {
       
       const result = await getCertificateList(queryParams)
       
-      certificates.value = result.data || []
+      certificates.value = result.records || []
       pagination.value.total = result.total || 0
       
       return result
@@ -214,7 +214,7 @@ export const useCertificateStore = defineStore('certificate', () => {
         
         // 避免过时请求覆盖新结果
         if (query.trim() === lastSearchQuery.value) {
-          searchResults.value = result.data || []
+          searchResults.value = result.records || []
           pagination.value.total = result.total || 0
         }
       } else {
